@@ -1,0 +1,5 @@
+# Keep line endings stable across Windows and the CI runners.
+* text=auto eol=lf
+*.png binary
+*.ttf binary
+*.wasm binary

@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="_ds/organic-1c13adfa-694b-454b-be9c-358bb2c06778/styles.css">
+<script src="_ds/organic-1c13adfa-694b-454b-be9c-358bb2c06778/_ds_bundle.js"></script>
+<script src="./image-slot.js"></script>
+<style>
+  :root { --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei"; }
+  body { margin: 0; background: var(--color-surface); font-family: var(--font-body), var(--font-cjk); color: var(--color-text); -webkit-font-smoothing: antialiased; }
+  a { color: var(--color-accent-700); } a:hover { color: var(--color-accent-600); }
+  * { -webkit-tap-highlight-color: transparent; }
+  input { font-family: inherit; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 44px 24px 64px; box-sizing: border-box">
+  <div style="display: flex; flex-direction: column; gap: 6px; width: 402px">
+    <div style="font-family: var(--font-heading); font-size: 30px; line-height: 1; color: var(--color-accent-700)">Brew Log</div>
+    <div style="font-size: 14px; color: var(--color-neutral-700)">咖啡记录 · A 版（速记优先）· 可点：五屏跳转 / 参数随做法切换 / 比例实时计算 / 豆子选择器 / 提交写入时间线 / 卡片进详情</div>
+  </div>
+  <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" width="{{ 402 }}" height="{{ 874 }}" hint-size="402px,874px">
+    <div style="height: 100%; display: flex; flex-direction: column; background: var(--color-bg); position: relative; overflow: hidden; font-family: var(--font-body), var(--font-cjk); color: var(--color-text)">
+
+      <sc-if value="{{ isTimeline }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; height: 100%">
+          <div style="padding: 56px 20px 12px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display: flex; align-items: flex-end; justify-content: space-between; flex: 0 0 auto">
+            <div style="display: flex; flex-direction: column; gap: 2px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600">2026 年 8 月</div>
+              <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.4px">记录</div>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 4px; padding-bottom: 4px">
+              <span style="font-family: var(--font-heading); font-size: 26px; color: var(--color-accent-700)">{{ monthCount }}</span>
+              <span style="font-size: 13px; color: var(--color-neutral-600)">杯</span>
+            </div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 14px 16px 168px">
+            <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+              <div style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 22px">
+                <div style="display: flex; align-items: baseline; gap: 8px; padding: 0 4px">
+                  <span style="font-size: 15px; font-weight: 700">{{ g.label }}</span>
+                  <span style="font-size: 12px; color: var(--color-neutral-700)">{{ g.sub }}</span>
+                </div>
+                <sc-for list="{{ g.items }}" as="c" hint-placeholder-count="2">
+                  <div onClick="{{ c.open }}" style="background: {{ c.bg }}; border-radius: 20px; padding: 14px 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 9px; cursor: pointer">
+                    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px">
+                      <div onClick="{{ c.openBean }}" style="display: flex; flex-direction: column; gap: 3px; min-width: 0; cursor: pointer" style-active="opacity: 0.55">
+                        <div style="font-size: 16px; font-weight: 600; line-height: 1.3">{{ c.beanName }}</div>
+                        <div style="font-size: 12px; color: var(--color-neutral-700)">{{ c.beanSub }}</div>
+                      </div>
+                      <div style="display: flex; align-items: flex-start; gap: 4px; flex: 0 0 auto">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 3px">
+                          <div style="font-size: 13px; letter-spacing: 1px; line-height: 1">
+                            <span style="color: var(--color-accent)">{{ c.filled }}</span><span style="color: var(--color-neutral-300)">{{ c.empty }}</span>
+                          </div>
+                          <div style="font-family: var(--font-heading); font-size: 12px; color: var(--color-neutral-700)">{{ c.time }}</div>
+                        </div>
+                        <div onClick="{{ c.openMenu }}" style="width: 44px; height: 44px; margin: -12px -14px -12px 0; display: flex; align-items: center; justify-content: center; font-size: 17px; color: var(--color-neutral-400); cursor: pointer; border-radius: 999px" style-active="background: var(--color-neutral-200)">⋯</div>
+                      </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap">
+                      <span style="display: inline-flex; align-items: center; gap: 5px; background: {{ c.tint }}; color: {{ c.color }}; font-size: 12px; font-weight: 600; padding: 4px 9px; border-radius: 999px">
+                        <span style="width: 6px; height: 6px; border-radius: 999px; background: {{ c.color }}"></span>{{ c.methodLabel }}
+                      </span>
+                      <sc-if value="{{ c.ratio }}" hint-placeholder-val="{{ true }}">
+                        <span style="font-family: var(--font-heading); font-size: 13px; color: var(--color-accent-700)">{{ c.ratio }}</span>
+                      </sc-if>
+                      <span onClick="{{ c.openStore }}" style="font-size: 12px; color: var(--color-accent-2-700); background: var(--color-accent-2-100); padding: 4px 9px; border-radius: 999px; cursor: pointer" style-active="opacity: 0.55">{{ c.storeName }}</span>
+                    </div>
+                    <sc-if value="{{ c.hasPhoto }}" hint-placeholder-val="{{ true }}">
+                      <div style="position: relative; width: 100%; height: 132px; border-radius: 14px; overflow: hidden">
+                        <image-slot id="{{ c.photo }}" shape="rounded" radius="14" placeholder="把咖啡照片拖进来"></image-slot>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ c.showParams }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-size: 12.5px; color: var(--color-neutral-600); letter-spacing: 0.01em">{{ c.params }}</div>
+                    </sc-if>
+                    <sc-if value="{{ c.note }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-size: 13px; color: var(--color-neutral-700); line-height: 1.45; text-wrap: pretty">{{ c.note }}</div>
+                    </sc-if>
+                    <sc-if value="{{ c.menuOpen }}" hint-placeholder-val="{{ true }}">
+                      <div style="display: flex; gap: 9px; padding-top: 3px">
+                        <div onClick="{{ c.closeMenu }}" style="flex: 1; text-align: center; padding: 11px 0; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); font-size: 14px; font-weight: 600; color: var(--color-neutral-700); cursor: pointer; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center" style-active="opacity: 0.6">取消</div>
+                        <div onClick="{{ c.del }}" style="flex: 1; text-align: center; padding: 11px 0; border-radius: 999px; background: var(--color-accent-700); color: var(--color-accent-100); font-size: 14px; font-weight: 700; cursor: pointer; min-height: 44px; box-sizing: border-box; display: flex; align-items: center; justify-content: center" style-active="opacity: 0.8">删除这条</div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isBeans }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; height: 100%">
+          <div style="padding: 56px 20px 12px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display: flex; flex-direction: column; gap: 12px; flex: 0 0 auto">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.4px">豆子</div>
+              <div onClick="{{ openNewBean }}" style="width: 44px; height: 44px; margin-right: -10px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: var(--color-accent-700); cursor: pointer" style-active="opacity: 0.5">＋</div>
+            </div>
+            <div style="display: flex; background: color-mix(in srgb, var(--color-text) 7%, transparent); border-radius: 999px; padding: 3px">
+              <sc-for list="{{ beanTabs }}" as="t" hint-placeholder-count="2">
+                <div onClick="{{ t.pick }}" style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; padding: 8px 0; border-radius: 999px; cursor: pointer; background: {{ t.bg }}; color: {{ t.fg }}; box-shadow: {{ t.shadow }}">{{ t.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 14px 16px 120px; display: flex; flex-direction: column; gap: 10px">
+            <sc-for list="{{ beanList }}" as="b" hint-placeholder-count="4">
+              <div onClick="{{ b.open }}" style="background: var(--color-neutral-100); border-radius: 20px; padding: 15px 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 14px; cursor: pointer" style-active="opacity: 0.6">
+                <div style="width: 44px; height: 44px; border-radius: 999px; background: {{ b.swatch }}; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 15px; color: {{ b.ink }}">{{ b.initial }}</div>
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                  <div style="font-size: 16px; font-weight: 600">{{ b.name }}</div>
+                  <div style="font-size: 12.5px; color: var(--color-neutral-700)">{{ b.sub }}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex: 0 0 auto">
+                  <div style="font-family: var(--font-heading); font-size: 17px; color: var(--color-accent-700)">{{ b.avg }}</div>
+                  <div style="font-size: 11.5px; color: var(--color-neutral-700)">{{ b.count }} 杯</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isMe }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; height: 100%">
+          <div style="padding: 56px 20px 12px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); flex: 0 0 auto">
+            <div style="font-size: 30px; font-weight: 700; letter-spacing: -0.4px">我的</div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 16px 16px 120px; display: flex; flex-direction: column; gap: 22px">
+            <div onClick="{{ openStats }}" style="background: var(--color-accent-700); border-radius: 26px; padding: 20px; cursor: pointer; display: flex; flex-direction: column; gap: 16px" style-active="opacity: 0.85">
+              <div style="display: flex; align-items: center; justify-content: space-between">
+                <div style="font-size: 13px; color: var(--color-accent-300); letter-spacing: 0.06em; font-weight: 600">本月摘要</div>
+                <div style="font-size: 13px; color: var(--color-accent-300)">统计 ›</div>
+              </div>
+              <div style="display: flex; gap: 26px">
+                <div style="display: flex; flex-direction: column; gap: 2px">
+                  <div style="font-family: var(--font-heading); font-size: 32px; color: var(--color-accent-100); line-height: 1">{{ monthCount }}</div>
+                  <div style="font-size: 12px; color: var(--color-accent-400)">杯</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px">
+                  <div style="font-family: var(--font-heading); font-size: 32px; color: var(--color-accent-100); line-height: 1">{{ avgRating }}</div>
+                  <div style="font-size: 12px; color: var(--color-accent-400)">平均评分</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 2px">
+                  <div style="font-family: var(--font-heading); font-size: 32px; color: var(--color-accent-100); line-height: 1">{{ topMethodPct }}</div>
+                  <div style="font-size: 12px; color: var(--color-accent-400)">{{ topMethodName }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">我的设备</div>
+              <div style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); overflow: hidden">
+                <sc-for list="{{ devices }}" as="d" hint-placeholder-count="4">
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent)">
+                    <div style="width: 8px; height: 8px; border-radius: 999px; background: var(--color-accent); flex: 0 0 auto"></div>
+                    <div style="flex: 1; min-width: 0; font-size: 15px; font-weight: 500">{{ d.name }}</div>
+                    <div style="font-size: 13px; color: var(--color-neutral-700)">{{ d.kind }}</div>
+                    <div onClick="{{ d.remove }}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 19px; color: var(--color-neutral-400); cursor: pointer; border-radius: 999px; flex: 0 0 auto" style-active="background: var(--color-accent-100)">−</div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ ndClosed }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ ndOpenForm }}" style="display: flex; align-items: center; gap: 8px; padding: 15px 16px; font-size: 15px; font-weight: 600; color: var(--color-accent-700); cursor: pointer; min-height: 44px; box-sizing: border-box" style-active="background: var(--color-accent-100)">
+                    <span style="font-size: 19px; line-height: 1; margin-top: -2px">＋</span> 添加设备
+                  </div>
+                </sc-if>
+              </div>
+              <sc-if value="{{ ndOpen }}" hint-placeholder-val="{{ true }}">
+                <div style="background: var(--color-accent-100); border: 1px solid color-mix(in srgb, var(--color-accent) 38%, transparent); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+                  <div style="font-size: 15px; font-weight: 700">添加设备</div>
+                  <input value="{{ ndName }}" onChange="{{ ndSetName }}" placeholder="设备名称，例如 Hario Switch" style="background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 13px 16px; font-size: 15px; color: var(--color-text); outline: none" />
+                  <div style="font-size: 13px; color: var(--color-neutral-700); padding-left: 4px">类型决定它出现在记录页的哪一栏</div>
+                  <div style="display: flex; gap: 7px; flex-wrap: wrap">
+                    <sc-for list="{{ ndKindOpts }}" as="k" hint-placeholder-count="7">
+                      <div onClick="{{ k.pick }}" style="font-size: 13.5px; font-weight: 500; padding: 9px 14px; border-radius: 999px; cursor: pointer; background: {{ k.bg }}; color: {{ k.fg }}; border: 1px solid {{ k.border }}" style-active="opacity: 0.7">{{ k.name }}</div>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ ndIsGrinder }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size: 13px; color: var(--color-neutral-700); padding-left: 4px">刻度精度</div>
+                    <div style="display: flex; gap: 7px; flex-wrap: wrap">
+                      <sc-for list="{{ ndStepOpts }}" as="s" hint-placeholder-count="2">
+                        <div onClick="{{ s.pick }}" style="font-size: 13.5px; font-weight: 500; padding: 9px 14px; border-radius: 999px; cursor: pointer; background: {{ s.bg }}; color: {{ s.fg }}; border: 1px solid {{ s.border }}" style-active="opacity: 0.7">{{ s.label }}</div>
+                      </sc-for>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 9px">
+                      <div style="font-size: 13px; color: var(--color-neutral-700); flex: 0 0 auto">刻度量程</div>
+                      <input value="{{ ndGmin }}" onChange="{{ ndSetGmin }}" placeholder="{{ ndMinPh }}" style="flex: 1; min-width: 0; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 10px 14px; font-size: 14px; color: var(--color-text); outline: none" />
+                      <div style="font-size: 13px; color: var(--color-neutral-500); flex: 0 0 auto">到</div>
+                      <input value="{{ ndGmax }}" onChange="{{ ndSetGmax }}" placeholder="{{ ndMaxPh }}" style="flex: 1; min-width: 0; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 10px 14px; font-size: 14px; color: var(--color-text); outline: none" />
+                    </div>
+                  </sc-if>
+                  <div style="display: flex; gap: 9px">
+                    <div onClick="{{ ndCancel }}" style="flex: 0 0 auto; padding: 13px 20px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); font-size: 15px; font-weight: 600; color: var(--color-neutral-700); cursor: pointer; text-align: center" style-active="opacity: 0.6">取消</div>
+                    <div onClick="{{ ndAdd }}" style="flex: 1; padding: 13px 0; border-radius: 999px; background: {{ ndAddBg }}; color: {{ ndAddFg }}; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center" style-active="opacity: 0.8">添加</div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">常喝品牌</div>
+              <div style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); overflow: hidden">
+                <sc-for list="{{ storeList }}" as="s" hint-placeholder-count="3">
+                  <div onClick="{{ s.open }}" style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); cursor: pointer" style-active="background: var(--color-neutral-200)">
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 2px">
+                      <div style="font-size: 15px; font-weight: 500">{{ s.name }}</div>
+                      <div style="font-size: 12px; color: var(--color-neutral-700)">{{ s.area }}</div>
+                    </div>
+                    <div style="font-size: 13px; color: var(--color-neutral-600)">{{ s.count }} 杯</div>
+                    <div style="font-size: 17px; color: var(--color-neutral-400)">›</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">偏好</div>
+              <div style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); overflow: hidden">
+                <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="3">
+                  <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent)">
+                    <div style="flex: 1; font-size: 15px; font-weight: 500">{{ p.name }}</div>
+                    <div style="font-size: 13px; color: var(--color-neutral-600)">{{ p.value }}</div>
+                    <div style="font-size: 17px; color: var(--color-neutral-400)">›</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStats }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; height: 100%">
+          <div style="padding: 56px 16px 12px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display: flex; align-items: center; gap: 4px; flex: 0 0 auto">
+            <div onClick="{{ back }}" style="display: flex; align-items: center; gap: 2px; min-height: 44px; padding-right: 10px; color: var(--color-accent-700); font-size: 16px; font-weight: 500; cursor: pointer" style-active="opacity: 0.5"><span style="font-size: 22px; line-height: 1">‹</span> 我的</div>
+            <div style="flex: 1; text-align: center; font-size: 17px; font-weight: 600; margin-left: -60px">统计</div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 16px 16px 40px; display: flex; flex-direction: column; gap: 24px">
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">各做法（一点一杯）</div>
+              <div style="background: var(--color-neutral-100); border-radius: 22px; padding: 18px 18px 8px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 18px">
+                <sc-for list="{{ methodStats }}" as="m" hint-placeholder-count="4">
+                  <div style="display: flex; flex-direction: column; gap: 9px; padding-bottom: 10px">
+                    <div style="display: flex; align-items: baseline; gap: 8px">
+                      <span style="font-size: 15px; font-weight: 600">{{ m.name }}</span>
+                      <span style="font-family: var(--font-heading); font-size: 18px; color: var(--color-accent-700)">{{ m.n }}</span>
+                      <span style="font-size: 12px; color: var(--color-neutral-700)">杯 · {{ m.pct }}</span>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                      <sc-for list="{{ m.dots }}" as="dot" hint-placeholder-count="6">
+                        <div style="width: 13px; height: 13px; border-radius: 999px; background: {{ dot.c }}"></div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">冰 vs 热</div>
+              <div style="background: var(--color-neutral-100); border-radius: 22px; padding: 18px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 18px">
+                <sc-for list="{{ tempStats }}" as="m" hint-placeholder-count="2">
+                  <div style="display: flex; flex-direction: column; gap: 9px">
+                    <div style="display: flex; align-items: baseline; gap: 8px">
+                      <span style="font-size: 15px; font-weight: 600">{{ m.name }}</span>
+                      <span style="font-family: var(--font-heading); font-size: 18px; color: var(--color-accent-700)">{{ m.n }}</span>
+                      <span style="font-size: 12px; color: var(--color-neutral-700)">杯 · {{ m.pct }}</span>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                      <sc-for list="{{ m.dots }}" as="dot" hint-placeholder-count="6">
+                        <div style="width: 13px; height: 13px; border-radius: 999px; background: {{ dot.c }}"></div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">评分分布</div>
+              <div style="background: var(--color-neutral-100); border-radius: 22px; padding: 18px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 14px">
+                <sc-for list="{{ ratingStats }}" as="m" hint-placeholder-count="5">
+                  <div style="display: flex; align-items: center; gap: 12px">
+                    <div style="width: 52px; font-size: 12px; letter-spacing: 1px; color: var(--color-accent); flex: 0 0 auto">{{ m.name }}</div>
+                    <div style="flex: 1; display: flex; flex-wrap: wrap; gap: 6px">
+                      <sc-for list="{{ m.dots }}" as="dot" hint-placeholder-count="3">
+                        <div style="width: 13px; height: 13px; border-radius: 999px; background: {{ dot.c }}"></div>
+                      </sc-for>
+                    </div>
+                    <div style="font-family: var(--font-heading); font-size: 15px; color: var(--color-neutral-600); flex: 0 0 auto">{{ m.n }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isBeanDetail }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; height: 100%">
+          <div style="padding: 56px 16px 12px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display: flex; align-items: center; gap: 4px; flex: 0 0 auto">
+            <div onClick="{{ back }}" style="display: flex; align-items: center; gap: 2px; min-height: 44px; padding-right: 10px; color: var(--color-accent-700); font-size: 16px; font-weight: 500; cursor: pointer" style-active="opacity: 0.5"><span style="font-size: 22px; line-height: 1">‹</span> 返回</div>
+            <div style="flex: 1; text-align: center; font-size: 17px; font-weight: 600">豆子</div>
+            <sc-if value="{{ ebClosed }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ bd.edit }}" style="min-height: 44px; display: flex; align-items: center; padding-left: 10px; font-size: 16px; font-weight: 600; color: var(--color-accent-700); cursor: pointer" style-active="opacity: 0.5">编辑</div>
+            </sc-if>
+            <sc-if value="{{ ebOpen }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ ebSave }}" style="min-height: 44px; display: flex; align-items: center; padding-left: 10px; font-size: 16px; font-weight: 700; color: var(--color-accent-700); cursor: pointer" style-active="opacity: 0.5">完成</div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ ebOpen }}" hint-placeholder-val="{{ true }}">
+            <div style="flex: 1; overflow-y: auto; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 13px">
+              <input value="{{ ebName }}" onChange="{{ ebSetName }}" placeholder="名称（留空则自动拼）" style="background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 13px 16px; font-size: 15px; color: var(--color-text); outline: none" />
+              <div style="font-size: 15px; font-weight: 700; padding: 0 6px">{{ ebPreviewName }}</div>
+              <sc-for list="{{ ebFields }}" as="f" hint-placeholder-count="5">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <div style="width: 84px; flex: 0 0 auto; font-size: 13px; color: var(--color-neutral-700)">{{ f.label }}</div>
+                  <input value="{{ f.value }}" onChange="{{ f.set }}" placeholder="{{ f.ph }}" style="flex: 1; min-width: 0; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 11px 15px; font-size: 14.5px; color: var(--color-text); outline: none" />
+                </div>
+              </sc-for>
+              <div style="font-size: 13px; color: var(--color-neutral-700); padding: 6px 4px 0">处理法</div>
+              <div style="display: flex; gap: 7px; flex-wrap: wrap">
+                <sc-for list="{{ ebProcessOpts }}" as="p" hint-placeholder-count="6">
+                  <div onClick="{{ p.pick }}" style="font-size: 13.5px; font-weight: 500; padding: 9px 14px; border-radius: 999px; cursor: pointer; background: {{ p.bg }}; color: {{ p.fg }}; border: 1px solid {{ p.border }}" style-active="opacity: 0.7">{{ p.name }}</div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ ebCustomProcess }}" hint-placeholder-val="{{ true }}">
+                <input value="{{ ebProcessText }}" onChange="{{ ebSetProcess }}" placeholder="自己填，例如 厌氧日晒" style="background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-accent) 52%, transparent); border-radius: 999px; padding: 11px 15px; font-size: 14.5px; color: var(--color-text); outline: none" />
+              </sc-if>
+              <div style="font-size: 13px; color: var(--color-neutral-700); padding: 6px 4px 0">烘焙度</div>
+              <div style="display: flex; gap: 7px; flex-wrap: wrap">
+                <sc-for list="{{ ebRoastOpts }}" as="p" hint-placeholder-count="5">
+                  <div onClick="{{ p.pick }}" style="font-size: 13.5px; font-weight: 500; padding: 9px 14px; border-radius: 999px; cursor: pointer; background: {{ p.bg }}; color: {{ p.fg }}; border: 1px solid {{ p.border }}" style-active="opacity: 0.7">{{ p.name }}</div>
+                </sc-for>
+              </div>
+              <div style="font-size: 13px; color: var(--color-neutral-700); padding: 6px 4px 0">归属</div>
+              <div style="display: flex; background: color-mix(in srgb, var(--color-text) 7%, transparent); border-radius: 999px; padding: 3px">
+                <sc-for list="{{ ebOwnerOpts }}" as="o" hint-placeholder-count="2">
+                  <div onClick="{{ o.pick }}" style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; padding: 9px 0; border-radius: 999px; cursor: pointer; background: {{ o.bg }}; color: {{ o.fg }}; box-shadow: {{ o.shadow }}">{{ o.label }}</div>
+                </sc-for>
+              </div>
+              <div style="font-size: 13px; color: var(--color-neutral-700); padding: 6px 4px 0">图标颜色</div>
+              <div style="display: flex; gap: 7px">
+                <sc-for list="{{ ebSwatchOpts }}" as="c" hint-placeholder-count="6">
+                  <div onClick="{{ c.pick }}" style="width: 28px; height: 28px; border-radius: 999px; background: {{ c.c }}; border: {{ c.ring }}; box-shadow: 0 0 0 2px var(--color-bg); cursor: pointer" style-active="opacity: 0.6"></div>
+                </sc-for>
+              </div>
+              <div style="display: flex; align-items: center; gap: 9px">
+                <div style="width: 28px; height: 28px; border-radius: 999px; background: {{ ebHexPreview }}; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); flex: 0 0 auto"></div>
+                <input value="{{ ebHex }}" onChange="{{ ebSetHex }}" placeholder="自定义：#c67139 或 rgb(198,113,57)" style="flex: 1; min-width: 0; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 10px 14px; font-size: 13.5px; color: var(--color-text); outline: none" />
+              </div>
+              <div onClick="{{ ebCancel }}" style="text-align: center; font-size: 15px; font-weight: 600; color: var(--color-neutral-700); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 13px; margin-top: 8px; cursor: pointer" style-active="opacity: 0.6">放弃修改</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ ebClosed }}" hint-placeholder-val="{{ true }}">
+          <div style="flex: 1; overflow-y: auto; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 24px">
+            <div style="display: flex; align-items: center; gap: 16px; padding: 0 4px">
+              <div style="width: 66px; height: 66px; border-radius: 999px; background: {{ bd.swatch }}; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 22px; color: {{ bd.ink }}">{{ bd.initial }}</div>
+              <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0">
+                <div style="font-size: 22px; font-weight: 700; line-height: 1.2; text-wrap: pretty">{{ bd.name }}</div>
+                <div style="font-size: 13px; color: var(--color-neutral-600)">{{ bd.sub }}</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 10px">
+              <div style="flex: 1; background: var(--color-neutral-100); border-radius: 18px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 3px">
+                <div style="font-family: var(--font-heading); font-size: 22px; color: var(--color-accent-700); line-height: 1">{{ bd.count }}</div>
+                <div style="font-size: 12px; color: var(--color-neutral-700)">杯</div>
+              </div>
+              <div style="flex: 1; background: var(--color-neutral-100); border-radius: 18px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 3px">
+                <div style="font-family: var(--font-heading); font-size: 22px; color: var(--color-accent-700); line-height: 1">{{ bd.avg }}</div>
+                <div style="font-size: 12px; color: var(--color-neutral-700)">平均评分</div>
+              </div>
+              <div style="flex: 1; background: var(--color-neutral-100); border-radius: 18px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 3px">
+                <div style="font-family: var(--font-heading); font-size: 22px; color: var(--color-accent-700); line-height: 1">{{ bd.bestRatio }}</div>
+                <div style="font-size: 12px; color: var(--color-neutral-700)">高分常用比例</div>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 9px; padding: 0 4px">
+              <div style="font-size: 13px; color: var(--color-neutral-700)">图标颜色</div>
+              <div style="display: flex; gap: 8px">
+                <sc-for list="{{ bd.swatchOpts }}" as="c" hint-placeholder-count="6">
+                  <div onClick="{{ c.pick }}" style="width: 28px; height: 28px; border-radius: 999px; background: {{ c.c }}; border: {{ c.ring }}; box-shadow: 0 0 0 2px var(--color-bg); cursor: pointer" style-active="opacity: 0.6"></div>
+                </sc-for>
+              </div>
+              <div style="display: flex; align-items: center; gap: 9px">
+                <div style="width: 28px; height: 28px; border-radius: 999px; background: {{ bd.hexPreview }}; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); flex: 0 0 auto"></div>
+                <input value="{{ bd.hex }}" onChange="{{ bd.setHex }}" placeholder="自定义：#c67139 或 rgb(198,113,57)" style="flex: 1; min-width: 0; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 10px 14px; font-size: 13.5px; color: var(--color-text); outline: none" />
+              </div>
+            </div>
+
+            <div style="background: var(--color-neutral-100); border-radius: 22px; box-shadow: var(--shadow-sm); overflow: hidden">
+              <sc-for list="{{ bd.attrs }}" as="a" hint-placeholder-count="5">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent)">
+                  <div style="flex: 1; font-size: 14px; color: var(--color-neutral-700)">{{ a.k }}</div>
+                  <div style="font-size: 15px; font-weight: 600">{{ a.v }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ bd.hasCompare }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <div style="display: flex; flex-direction: column; gap: 3px; padding: 0 6px">
+                  <div style="font-size: 16px; font-weight: 700">{{ bd.compareTitle }}</div>
+                  <div style="font-size: 12.5px; color: var(--color-neutral-600)">底色标出的是三杯之间不一样的参数</div>
+                </div>
+                <div style="background: var(--color-neutral-100); border-radius: 22px; padding: 14px 8px 12px; box-shadow: var(--shadow-sm)">
+                  <div style="display: grid; grid-template-columns: 62px 1fr 1fr 1fr; gap: 3px 4px; align-items: center">
+                    <div></div>
+                    <sc-for list="{{ bd.compareCols }}" as="col" hint-placeholder-count="3">
+                      <div style="text-align: center; display: flex; flex-direction: column; gap: 2px; padding-bottom: 6px">
+                        <div style="font-family: var(--font-heading); font-size: 13px; color: var(--color-text)">{{ col.date }}</div>
+                        <div style="font-size: 10.5px; color: var(--color-neutral-700)">{{ col.store }}</div>
+                      </div>
+                    </sc-for>
+                    <sc-for list="{{ bd.compareRows }}" as="row" hint-placeholder-count="6">
+                      <div style="font-size: 12.5px; color: var(--color-neutral-600); padding-left: 8px">{{ row.label }}</div>
+                      <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="3">
+                        <div style="text-align: center; font-family: var(--font-heading); font-size: 14px; padding: 7px 2px; border-radius: 10px; background: {{ cell.bg }}; color: {{ cell.fg }}">{{ cell.v }}</div>
+                      </sc-for>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ bd.notConfirming }}" hint-placeholder-val="{{ true }}">
+              <div onClick="{{ bd.askDel }}" style="text-align: center; font-size: 15px; font-weight: 600; color: var(--color-accent-700); border: 1px solid color-mix(in srgb, var(--color-accent) 52%, transparent); border-radius: 999px; padding: 14px; cursor: pointer; min-height: 44px; box-sizing: border-box" style-active="opacity: 0.6">{{ bd.deleteLabel }}</div>
+            </sc-if>
+            <sc-if value="{{ bd.confirming }}" hint-placeholder-val="{{ true }}">
+              <div style="background: var(--color-accent-100); border: 1px solid color-mix(in srgb, var(--color-accent) 52%, transparent); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+                <div style="font-size: 14.5px; font-weight: 600; text-wrap: pretty">{{ bd.confirmLabel }}</div>
+                <div style="display: flex; gap: 9px">
+                  <div onClick="{{ bd.cancelDel }}" style="flex: 1; text-align: center; padding: 13px 0; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); font-size: 15px; font-weight: 600; color: var(--color-neutral-700); cursor: pointer" style-active="opacity: 0.6">取消</div>
+                  <div onClick="{{ bd.del }}" style="flex: 1; text-align: center; padding: 13px 0; border-radius: 999px; background: var(--color-accent-700); color: var(--color-accent-100); font-size: 15px; font-weight: 700; cursor: pointer" style-active="opacity: 0.8">删除</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">全部记录</div>
+              <sc-for list="{{ bd.records }}" as="c" hint-placeholder-count="4">
+                <div style="background: var(--color-neutral-100); border-radius: 18px; padding: 13px 15px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px">
+                  <div style="width: 8px; height: 8px; border-radius: 999px; background: {{ c.color }}; flex: 0 0 auto"></div>
+                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                    <div style="font-size: 14px; font-weight: 600">{{ c.dateLabel }} · {{ c.methodLabel }}</div>
+                    <div style="font-size: 12px; color: var(--color-neutral-700)">{{ c.params }}</div>
+                  </div>
+                  <div style="font-size: 12px; letter-spacing: 1px; flex: 0 0 auto"><span style="color: var(--color-accent)">{{ c.filled }}</span><span style="color: var(--color-neutral-300)">{{ c.empty }}</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isStoreDetail }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; height: 100%">
+          <div style="padding: 56px 16px 12px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display: flex; align-items: center; gap: 4px; flex: 0 0 auto">
+            <div onClick="{{ back }}" style="display: flex; align-items: center; gap: 2px; min-height: 44px; padding-right: 10px; color: var(--color-accent-700); font-size: 16px; font-weight: 500; cursor: pointer" style-active="opacity: 0.5"><span style="font-size: 22px; line-height: 1">‹</span> 返回</div>
+            <div style="flex: 1; text-align: center; font-size: 17px; font-weight: 600; margin-left: -60px">品牌</div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 22px">
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 0 4px">
+              <div style="font-size: 24px; font-weight: 700">{{ sd.name }}</div>
+              <div style="font-size: 13px; color: var(--color-neutral-600)">{{ sd.area }}</div>
+            </div>
+            <div style="display: flex; gap: 10px">
+              <div style="flex: 1; background: var(--color-neutral-100); border-radius: 18px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 3px">
+                <div style="font-family: var(--font-heading); font-size: 22px; color: var(--color-accent-700); line-height: 1">{{ sd.count }}</div>
+                <div style="font-size: 12px; color: var(--color-neutral-700)">杯</div>
+              </div>
+              <div style="flex: 1; background: var(--color-neutral-100); border-radius: 18px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 3px">
+                <div style="font-family: var(--font-heading); font-size: 22px; color: var(--color-accent-700); line-height: 1">{{ sd.avg }}</div>
+                <div style="font-size: 12px; color: var(--color-neutral-700)">平均评分</div>
+              </div>
+              <div style="flex: 1; background: var(--color-neutral-100); border-radius: 18px; padding: 14px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 3px">
+                <div style="font-size: 15px; font-weight: 600; color: var(--color-accent-2-700); line-height: 1.2; padding-top: 3px">{{ sd.topMethod }}</div>
+                <div style="font-size: 12px; color: var(--color-neutral-700)">最常点</div>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">在这里喝过</div>
+              <sc-for list="{{ sd.records }}" as="c" hint-placeholder-count="4">
+                <div style="background: var(--color-neutral-100); border-radius: 18px; padding: 13px 15px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px">
+                  <div style="width: 8px; height: 8px; border-radius: 999px; background: {{ c.color }}; flex: 0 0 auto"></div>
+                  <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                    <div style="font-size: 14px; font-weight: 600">{{ c.beanName }}</div>
+                    <div style="font-size: 12px; color: var(--color-neutral-700)">{{ c.dateLabel }} · {{ c.methodLabel }} · {{ c.ratio }}</div>
+                  </div>
+                  <div style="font-size: 12px; letter-spacing: 1px; flex: 0 0 auto"><span style="color: var(--color-accent)">{{ c.filled }}</span><span style="color: var(--color-neutral-300)">{{ c.empty }}</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showTabBar }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 30">
+          <div onClick="{{ openNew }}" style="position: absolute; bottom: 104px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: var(--color-accent); color: var(--color-accent-100); font-size: 16px; font-weight: 700; padding: 15px 26px; border-radius: 999px; box-shadow: var(--shadow-lg); cursor: pointer; white-space: nowrap" style-active="background: var(--color-accent-600)">
+            <span style="font-size: 20px; line-height: 1; margin-top: -2px">＋</span> 记一杯
+          </div>
+          <div style="background: color-mix(in srgb, var(--color-neutral-100) 92%, transparent); backdrop-filter: blur(24px); border-top: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); display: flex; padding: 9px 0 26px">
+            <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+              <div onClick="{{ t.pick }}" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 4px 0; cursor: pointer; min-height: 44px">
+                <div style="width: 26px; height: 26px; color: {{ t.color }}" data-icon="{{ t.icon }}">{{ t.svg }}</div>
+                <div style="font-size: 10.5px; font-weight: 600; color: {{ t.color }}">{{ t.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isNew }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; top: 44px; left: 0; right: 0; bottom: 0; z-index: 40; background: var(--color-bg); display: flex; flex-direction: column">
+          <div style="padding: 12px 16px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto">
+            <div onClick="{{ back }}" style="font-size: 16px; color: var(--color-accent-700); min-height: 44px; display: flex; align-items: center; cursor: pointer" style-active="opacity: 0.5">取消</div>
+            <div style="font-size: 17px; font-weight: 600">记一杯</div>
+            <div onClick="{{ save }}" style="font-size: 16px; font-weight: 700; color: var(--color-accent-700); min-height: 44px; display: flex; align-items: center; cursor: pointer" style-active="opacity: 0.5">保存</div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 16px 16px 48px; display: flex; flex-direction: column; gap: 20px">
+            <div style="display: flex; background: color-mix(in srgb, var(--color-text) 7%, transparent); border-radius: 999px; padding: 3px">
+              <sc-for list="{{ sourceOpts }}" as="o" hint-placeholder-count="2">
+                <div onClick="{{ o.pick }}" style="flex: 1; text-align: center; font-size: 15px; font-weight: 700; padding: 12px 0; border-radius: 999px; cursor: pointer; background: {{ o.bg }}; color: {{ o.fg }}; box-shadow: {{ o.shadow }}">{{ o.label }}</div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ isOutside }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 9px">
+                <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">品牌</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <sc-for list="{{ storeOpts }}" as="s" hint-placeholder-count="3">
+                    <div onClick="{{ s.pick }}" style="font-size: 14px; font-weight: 500; padding: 11px 16px; border-radius: 999px; cursor: pointer; background: {{ s.bg }}; color: {{ s.fg }}; border: 1px solid {{ s.border }}; min-height: 44px; display: flex; align-items: center; box-sizing: border-box; white-space: nowrap; flex: 0 0 auto" style-active="opacity: 0.7">{{ s.name }}</div>
+                  </sc-for>
+                  <sc-if value="{{ nsClosed }}" hint-placeholder-val="{{ true }}">
+                    <div onClick="{{ nsOpenForm }}" style="font-size: 14px; font-weight: 600; padding: 11px 16px; border-radius: 999px; cursor: pointer; background: var(--color-neutral-100); color: var(--color-accent-700); border: 1px dashed color-mix(in srgb, var(--color-accent) 52%, transparent); min-height: 44px; display: flex; align-items: center; box-sizing: border-box; white-space: nowrap; flex: 0 0 auto" style-active="background: var(--color-accent-100)">＋ 新品牌</div>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ nsOpen }}" hint-placeholder-val="{{ true }}">
+                  <div style="background: var(--color-accent-2-100); border: 1px solid color-mix(in srgb, var(--color-accent-2-700) 30%, transparent); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 13px">
+                    <div style="font-size: 15px; font-weight: 700">新建品牌</div>
+                    <input value="{{ nsName }}" onChange="{{ nsSetName }}" placeholder="品牌名称（必填）" style="background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 13px 16px; font-size: 15px; color: var(--color-text); outline: none" />
+                    <div style="display: flex; gap: 9px">
+                      <div onClick="{{ nsCancel }}" style="flex: 0 0 auto; padding: 13px 20px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); font-size: 15px; font-weight: 600; color: var(--color-neutral-700); cursor: pointer; text-align: center" style-active="opacity: 0.6">取消</div>
+                      <div onClick="{{ nsAdd }}" style="flex: 1; padding: 13px 0; border-radius: 999px; background: {{ nsAddBg }}; color: {{ nsAddFg }}; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center" style-active="opacity: 0.8">添加并选中</div>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ showPresets }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 9px">
+                <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">沿用最近</div>
+                <div style="display: flex; gap: 9px; flex-wrap: wrap">
+                  <sc-for list="{{ presets }}" as="p" hint-placeholder-count="3">
+                    <div onClick="{{ p.apply }}" style="display: flex; flex-direction: column; gap: 3px; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius: 16px; padding: 10px 14px; cursor: pointer; min-height: 44px; justify-content: center" style-active="background: var(--color-accent-100)">
+                      <div style="font-size: 13px; font-weight: 600">{{ p.title }}</div>
+                      <div style="font-family: var(--font-heading); font-size: 12px; color: var(--color-accent-700)">{{ p.sub }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="display: flex; flex-direction: column; gap: 9px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">做法</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px">
+                <sc-for list="{{ methodOpts }}" as="m" hint-placeholder-count="5">
+                  <div onClick="{{ m.pick }}" style="grid-column: {{ m.span }}; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 10px; border-radius: 999px; cursor: pointer; background: {{ m.bg }}; color: {{ m.fg }}; border: 1px solid {{ m.border }}; font-size: 15px; font-weight: 600; min-height: 44px; box-sizing: border-box" style-active="opacity: 0.75">
+                    <span style="width: 9px; height: 9px; border-radius: 999px; background: {{ m.dot }}"></span>{{ m.name }}
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display: flex; background: color-mix(in srgb, var(--color-text) 7%, transparent); border-radius: 999px; padding: 3px; margin-top: 3px">
+                <sc-for list="{{ tempOpts }}" as="t" hint-placeholder-count="2">
+                  <div onClick="{{ t.pick }}" style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; padding: 12px 0; border-radius: 999px; cursor: pointer; background: {{ t.bg }}; color: {{ t.fg }}; box-shadow: {{ t.shadow }}">{{ t.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 9px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">豆子</div>
+              <div onClick="{{ openSheet }}" style="background: var(--color-neutral-100); border-radius: 20px; padding: 15px 16px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px; cursor: pointer; min-height: 44px" style-active="background: var(--color-neutral-200)">
+                <div style="width: 38px; height: 38px; border-radius: 999px; background: {{ pickedBean.swatch }}; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 13px; color: {{ pickedBean.ink }}">{{ pickedBean.initial }}</div>
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                  <div style="font-size: 15.5px; font-weight: 600">{{ pickedBean.name }}</div>
+                  <div style="font-size: 12px; color: var(--color-neutral-700)">{{ pickedBean.sub }}</div>
+                </div>
+                <div style="font-size: 17px; color: var(--color-neutral-400)">›</div>
+              </div>
+            </div>
+
+            <sc-if value="{{ showGear }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 9px">
+                <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">冲煮器具</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <sc-for list="{{ gearOpts }}" as="d" hint-placeholder-count="3">
+                    <div onClick="{{ d.pick }}" style="font-size: 14px; font-weight: 500; padding: 11px 16px; border-radius: 999px; cursor: pointer; background: {{ d.bg }}; color: {{ d.fg }}; border: 1px solid {{ d.border }}; min-height: 44px; display: flex; align-items: center; box-sizing: border-box; white-space: nowrap; flex: 0 0 auto" style-active="opacity: 0.7">{{ d.name }}</div>
+                  </sc-for>
+                </div>
+                <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 8px 6px 0">磨豆机</div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap">
+                  <sc-for list="{{ grinderOpts }}" as="d" hint-placeholder-count="2">
+                    <div onClick="{{ d.pick }}" style="font-size: 14px; font-weight: 500; padding: 11px 16px; border-radius: 999px; cursor: pointer; background: {{ d.bg }}; color: {{ d.fg }}; border: 1px solid {{ d.border }}; min-height: 44px; display: flex; align-items: center; box-sizing: border-box; white-space: nowrap; flex: 0 0 auto" style-active="opacity: 0.7">{{ d.name }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <div style="display: flex; flex-direction: column; gap: 9px">
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 6px">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600">参数</div>
+                  <div onClick="{{ clearAllFields }}" style="font-size: 12px; font-weight: 600; color: var(--color-accent-700); cursor: pointer" style-active="opacity: 0.5">全部留空</div>
+                </div>
+                <div style="display: flex; align-items: baseline; gap: 6px">
+                  <span style="font-size: 12px; color: var(--color-neutral-600)">{{ ratioLabel }}</span>
+                  <span style="font-family: var(--font-heading); font-size: 17px; color: var(--color-accent-700)">{{ ratioValue }}</span>
+                </div>
+              </div>
+              <div style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); overflow: hidden">
+                <sc-for list="{{ fields }}" as="f" hint-placeholder-count="5">
+                  <sc-if value="{{ f.show }}" hint-placeholder-val="{{ true }}">
+                  <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px 10px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent)">
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                      <div style="font-size: 15px; font-weight: 500">{{ f.label }}</div>
+                      <sc-if value="{{ f.sub }}" hint-placeholder-val="{{ true }}">
+                        <div style="font-size: 11.5px; color: var(--color-neutral-500)">{{ f.sub }}</div>
+                      </sc-if>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 2px">
+                      <div onClick="{{ f.dec }}" style="width: 44px; height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-accent-700); cursor: pointer; user-select: none" style-active="background: var(--color-accent-100)">−</div>
+                      <div onClick="{{ f.clear }}" style="min-width: 74px; text-align: center; font-family: var(--font-heading); font-size: 19px; color: {{ f.color }}; cursor: pointer; padding: 8px 0; border-radius: 12px" style-active="background: var(--color-accent-100)">{{ f.display }}</div>
+                      <div onClick="{{ f.inc }}" style="width: 44px; height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-accent-700); cursor: pointer; user-select: none" style-active="background: var(--color-accent-100)">＋</div>
+                    </div>
+                  </div>
+                  </sc-if>
+                </sc-for>
+              </div>
+              <sc-if value="{{ showGrindDial }}" hint-placeholder-val="{{ true }}">
+                <div style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 12px">
+                  <div style="display: flex; align-items: flex-end; gap: 12px">
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                      <div style="font-size: 15px; font-weight: 500">研磨</div>
+                      <div style="font-size: 11.5px; color: var(--color-neutral-500)">{{ grindSub }}</div>
+                    </div>
+                    <div onClick="{{ grindClear }}" style="display: flex; align-items: baseline; gap: 3px; cursor: pointer; padding: 4px 8px; border-radius: 12px; flex: 0 0 auto" style-active="background: var(--color-accent-100)">
+                      <span style="font-family: var(--font-heading); font-size: 26px; color: {{ grindColor }}; line-height: 1">{{ grindDisplay }}</span>
+                      <span style="font-size: 13px; color: var(--color-neutral-600)">{{ grindUnit }}</span>
+                    </div>
+                  </div>
+                  <sc-if value="{{ grindHasRecents }}" hint-placeholder-val="{{ true }}">
+                    <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap">
+                      <div style="font-size: 12px; color: var(--color-neutral-600); flex: 0 0 auto">常用</div>
+                      <sc-for list="{{ grindRecents }}" as="r" hint-placeholder-count="3">
+                        <div onClick="{{ r.pick }}" style="font-family: var(--font-heading); font-size: 14px; padding: 8px 14px; border-radius: 999px; cursor: pointer; background: {{ r.bg }}; color: {{ r.fg }}; border: 1px solid {{ r.border }}" style-active="opacity: 0.7">{{ r.label }}</div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <div onClick="{{ grindDec }}" style="width: 44px; height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-accent-700); cursor: pointer; user-select: none; flex: 0 0 auto; border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent)" style-active="background: var(--color-accent-100)">−</div>
+                    <input type="range" min="{{ grindSliderMin }}" max="{{ grindSliderMax }}" step="{{ grindSliderStep }}" value="{{ grindSliderVal }}" onChange="{{ grindSlide }}" style="flex: 1; min-width: 0; height: 44px; accent-color: var(--color-accent); background: transparent; cursor: pointer" />
+                    <div onClick="{{ grindInc }}" style="width: 44px; height: 44px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--color-accent-700); cursor: pointer; user-select: none; flex: 0 0 auto; border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent)" style-active="background: var(--color-accent-100)">＋</div>
+                  </div>
+                </div>
+              </sc-if>
+              <div style="font-size: 11.5px; color: var(--color-neutral-500); padding: 0 8px">点数字可留空。门店喝不知道参数，空着就行。</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 9px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">评分</div>
+              <div style="background: var(--color-neutral-100); border-radius: 20px; padding: 8px 12px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between">
+                <sc-for list="{{ stars }}" as="s" hint-placeholder-count="5">
+                  <div onClick="{{ s.pick }}" style="width: 52px; height: 52px; display: flex; align-items: center; justify-content: center; font-size: 30px; color: {{ s.color }}; cursor: pointer" style-active="opacity: 0.5">{{ s.glyph }}</div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 9px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">照片</div>
+              <sc-if value="{{ noPhoto }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ openPhotoSheet }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--color-neutral-100); border: 1px dashed color-mix(in srgb, var(--color-accent) 52%, transparent); border-radius: 20px; padding: 22px; font-size: 15px; font-weight: 600; color: var(--color-accent-700); cursor: pointer; min-height: 44px; box-sizing: border-box" style-active="background: var(--color-accent-100)">
+                  <span style="font-size: 19px; line-height: 1; margin-top: -2px">＋</span> 加一张照片
+                </div>
+              </sc-if>
+              <sc-if value="{{ hasPhoto }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                  <div style="position: relative; width: 100%; height: 190px; border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-sm)">
+                    <image-slot id="{{ photoId }}" shape="rounded" radius="20" placeholder="把咖啡照片拖进来"></image-slot>
+                  </div>
+                  <div onClick="{{ dropPhoto }}" style="align-self: flex-start; font-size: 13px; font-weight: 600; color: var(--color-accent-700); cursor: pointer; min-height: 44px; display: flex; align-items: center; padding: 0 6px" style-active="opacity: 0.5">移除照片</div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 9px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">备注</div>
+              <input value="{{ note }}" onChange="{{ setNote }}" placeholder="风味、想法、下次改什么" style="background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 10%, transparent); border-radius: 20px; padding: 15px 16px; font-size: 15px; color: var(--color-text); outline: none; box-shadow: var(--shadow-sm)" />
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 9px">
+              <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">时间</div>
+              <div onClick="{{ openTimeSheet }}" style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 12px; padding: 15px 16px; cursor: pointer; min-height: 44px; box-sizing: border-box" style-active="background: var(--color-neutral-200)">
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px">
+                  <div style="font-size: 15.5px; font-weight: 600">{{ dateLabelFull }}</div>
+                  <div style="font-size: 12px; color: var(--color-neutral-600)">{{ dateRelative }}</div>
+                </div>
+                <div style="font-family: var(--font-heading); font-size: 19px; color: var(--color-accent-700); flex: 0 0 auto">{{ timeLabel }}</div>
+                <div style="font-size: 17px; color: var(--color-neutral-400); flex: 0 0 auto">›</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ photoSheet }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; inset: 0; z-index: 70; display: flex; flex-direction: column; justify-content: flex-end">
+          <div onClick="{{ closePhotoSheet }}" style="position: absolute; inset: 0; background: color-mix(in srgb, var(--color-neutral-900) 42%, transparent)"></div>
+          <div style="position: relative; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px">
+            <div style="background: var(--color-neutral-100); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-lg)">
+              <div onClick="{{ takePhoto }}" style="padding: 17px; text-align: center; font-size: 17px; font-weight: 600; color: var(--color-accent-700); cursor: pointer; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent)" style-active="background: var(--color-accent-100)">拍照</div>
+              <div onClick="{{ pickPhoto }}" style="padding: 17px; text-align: center; font-size: 17px; font-weight: 600; color: var(--color-accent-700); cursor: pointer" style-active="background: var(--color-accent-100)">从相册选</div>
+            </div>
+            <div onClick="{{ closePhotoSheet }}" style="background: var(--color-neutral-100); border-radius: 20px; padding: 17px; text-align: center; font-size: 17px; font-weight: 700; color: var(--color-text); cursor: pointer; box-shadow: var(--shadow-lg); margin-bottom: 22px" style-active="background: var(--color-neutral-200)">取消</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isRecordDetail }}" hint-placeholder-val="{{ true }}">
+        <div style="display: flex; flex-direction: column; height: 100%">
+          <div style="padding: 56px 16px 12px; background: color-mix(in srgb, var(--color-bg) 94%, transparent); backdrop-filter: blur(20px); border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); display: flex; align-items: center; gap: 4px; flex: 0 0 auto">
+            <div onClick="{{ back }}" style="display: flex; align-items: center; gap: 2px; min-height: 44px; padding-right: 10px; color: var(--color-accent-700); font-size: 16px; font-weight: 500; cursor: pointer" style-active="opacity: 0.5"><span style="font-size: 22px; line-height: 1">‹</span> 返回</div>
+            <div style="flex: 1; text-align: center; font-size: 17px; font-weight: 600; margin-left: -60px">这一杯</div>
+          </div>
+          <div style="flex: 1; overflow-y: auto; padding: 18px 16px 40px; display: flex; flex-direction: column; gap: 20px">
+            <sc-if value="{{ rd.hasPhoto }}" hint-placeholder-val="{{ true }}">
+              <div style="position: relative; width: 100%; height: 220px; flex: 0 0 220px; border-radius: 22px; overflow: hidden; box-shadow: var(--shadow-sm)">
+                <image-slot id="{{ rd.photo }}" shape="rounded" radius="22" placeholder="把咖啡照片拖进来"></image-slot>
+              </div>
+            </sc-if>
+
+            <div style="display: flex; align-items: center; gap: 14px">
+              <div onClick="{{ rd.openBean }}" style="width: 56px; height: 56px; border-radius: 999px; background: {{ rd.swatch }}; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 19px; color: var(--color-accent-100); cursor: pointer" style-active="opacity: 0.6">{{ rd.initial }}</div>
+              <div onClick="{{ rd.openBean }}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; cursor: pointer" style-active="opacity: 0.6">
+                <div style="font-size: 19px; font-weight: 700; line-height: 1.25; text-wrap: pretty">{{ rd.beanName }}</div>
+                <div style="font-size: 12.5px; color: var(--color-neutral-700)">{{ rd.beanSub }}</div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+              <span style="display: inline-flex; align-items: center; gap: 5px; background: {{ rd.tint }}; color: {{ rd.color }}; font-size: 13px; font-weight: 600; padding: 7px 13px; border-radius: 999px">
+                <span style="width: 6px; height: 6px; border-radius: 999px; background: {{ rd.color }}"></span>{{ rd.methodLabel }}
+              </span>
+              <span onClick="{{ rd.openStore }}" style="font-size: 13px; color: var(--color-accent-2-700); background: var(--color-accent-2-100); padding: 7px 13px; border-radius: 999px; cursor: pointer" style-active="opacity: 0.6">{{ rd.storeName }}</span>
+              <span style="font-size: 14px; letter-spacing: 1.5px"><span style="color: var(--color-accent)">{{ rd.filled }}</span><span style="color: var(--color-neutral-300)">{{ rd.empty }}</span></span>
+            </div>
+
+            <div style="font-size: 13.5px; color: var(--color-neutral-700); padding: 0 2px">{{ rd.dateLine }}</div>
+
+            <sc-if value="{{ rd.hasRows }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">参数</div>
+                <div style="background: var(--color-neutral-100); border-radius: 22px; box-shadow: var(--shadow-sm); overflow: hidden">
+                  <sc-for list="{{ rd.rows }}" as="r" hint-placeholder-count="5">
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent)">
+                      <div style="flex: 1; font-size: 14px; color: var(--color-neutral-700)">{{ r.k }}</div>
+                      <div style="font-family: var(--font-heading); font-size: 16px">{{ r.v }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ rd.hasNote }}" hint-placeholder-val="{{ true }}">
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">备注</div>
+                <div style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); padding: 15px 16px; font-size: 15px; line-height: 1.5; text-wrap: pretty">{{ rd.note }}</div>
+              </div>
+            </sc-if>
+
+            <div onClick="{{ rd.del }}" style="text-align: center; font-size: 15px; font-weight: 600; color: var(--color-accent-700); border: 1px solid color-mix(in srgb, var(--color-accent) 52%, transparent); border-radius: 999px; padding: 14px; cursor: pointer; min-height: 44px; box-sizing: border-box" style-active="opacity: 0.6">删除这条记录</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ timeSheet }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; inset: 0; z-index: 70; display: flex; flex-direction: column; justify-content: flex-end">
+          <div onClick="{{ closeTimeSheet }}" style="position: absolute; inset: 0; background: color-mix(in srgb, var(--color-neutral-900) 42%, transparent)"></div>
+          <div style="position: relative; background: var(--color-bg); border-radius: 28px 28px 0 0; display: flex; flex-direction: column; box-shadow: var(--shadow-lg)">
+            <div style="padding: 12px 16px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+              <div onClick="{{ backToToday }}" style="width: 72px; font-size: 14px; color: var(--color-accent-700); font-weight: 600; cursor: pointer; min-height: 44px; display: flex; align-items: center" style-active="opacity: 0.5">现在</div>
+              <div style="font-size: 16px; font-weight: 700">选时间</div>
+              <div onClick="{{ closeTimeSheet }}" style="width: 72px; text-align: right; font-size: 15px; font-weight: 700; color: var(--color-accent-700); cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: flex-end" style-active="opacity: 0.5">完成</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1.7fr 1fr 1fr; gap: 4px; padding: 8px 14px 30px; height: 244px; box-sizing: content-box">
+              <div style="overflow-y: auto; scroll-snap-type: y proximity; display: flex; flex-direction: column; gap: 2px">
+                <sc-for list="{{ dateCol }}" as="d" hint-placeholder-count="8">
+                  <div onClick="{{ d.pick }}" style="scroll-snap-align: center; text-align: center; padding: 12px 6px; border-radius: 14px; font-size: 14.5px; cursor: pointer; background: {{ d.bg }}; color: {{ d.color }}; font-weight: {{ d.weight }}" style-active="opacity: 0.6">{{ d.label }}</div>
+                </sc-for>
+              </div>
+              <div style="overflow-y: auto; scroll-snap-type: y proximity; display: flex; flex-direction: column; gap: 2px">
+                <sc-for list="{{ hourCol }}" as="h" hint-placeholder-count="8">
+                  <div onClick="{{ h.pick }}" style="scroll-snap-align: center; text-align: center; padding: 12px 4px; border-radius: 14px; font-family: var(--font-heading); font-size: 17px; cursor: pointer; background: {{ h.bg }}; color: {{ h.color }}; font-weight: {{ h.weight }}" style-active="opacity: 0.6">{{ h.label }}</div>
+                </sc-for>
+              </div>
+              <div style="overflow-y: auto; scroll-snap-type: y proximity; display: flex; flex-direction: column; gap: 2px">
+                <sc-for list="{{ minCol }}" as="m" hint-placeholder-count="8">
+                  <div onClick="{{ m.pick }}" style="scroll-snap-align: center; text-align: center; padding: 12px 4px; border-radius: 14px; font-family: var(--font-heading); font-size: 17px; cursor: pointer; background: {{ m.bg }}; color: {{ m.color }}; font-weight: {{ m.weight }}" style-active="opacity: 0.6">{{ m.label }}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column; justify-content: flex-end">
+          <div onClick="{{ closeSheet }}" style="position: absolute; inset: 0; background: color-mix(in srgb, var(--color-neutral-900) 42%, transparent); backdrop-filter: blur(2px)"></div>
+          <div style="position: relative; background: var(--color-bg); border-radius: 28px 28px 0 0; max-height: 74%; display: flex; flex-direction: column; box-shadow: var(--shadow-lg)">
+            <div style="padding: 12px 16px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent); flex: 0 0 auto">
+              <div style="width: 52px"></div>
+              <div style="font-size: 16px; font-weight: 700">{{ sheetTitle }}</div>
+              <div onClick="{{ closeSheet }}" style="width: 52px; text-align: right; font-size: 15px; color: var(--color-accent-700); cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: flex-end" style-active="opacity: 0.5">完成</div>
+            </div>
+            <div style="flex: 1; overflow-y: auto; padding: 8px 16px 34px; display: flex; flex-direction: column; gap: 18px">
+              <sc-if value="{{ nbOpen }}" hint-placeholder-val="{{ true }}">
+                <div style="background: var(--color-accent-100); border: 1px solid color-mix(in srgb, var(--color-accent) 38%, transparent); border-radius: 22px; padding: 16px; display: flex; flex-direction: column; gap: 13px">
+                  <div style="font-size: 15px; font-weight: 700">新建豆子</div>
+                  <input value="{{ nbName }}" onChange="{{ nbSetName }}" placeholder="{{ nbNamePlaceholder }}" style="background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 13px 16px; font-size: 15px; color: var(--color-text); outline: none" />
+                  <div style="display: flex; align-items: center; gap: 11px; padding: 0 4px">
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                      <div style="font-size: 15px; font-weight: 700">{{ nbPreviewName }}</div>
+                      <div style="font-size: 12px; color: var(--color-neutral-700)">{{ nbPreviewSub }}</div>
+                    </div>
+                    <div onClick="{{ nbToggleMore }}" style="flex: 0 0 auto; font-size: 13.5px; font-weight: 600; color: var(--color-accent-700); cursor: pointer; min-height: 44px; display: flex; align-items: center" style-active="opacity: 0.5">
+                      <sc-if value="{{ nbMore }}" hint-placeholder-val="{{ true }}">收起详情 ▴</sc-if>
+                      <sc-if value="{{ nbMoreClosed }}" hint-placeholder-val="{{ true }}">补充详情 ▾</sc-if>
+                    </div>
+                  </div>
+                  <sc-if value="{{ nbMore }}" hint-placeholder-val="{{ true }}">
+                    <div style="display: flex; flex-direction: column; gap: 10px">
+                      <sc-for list="{{ nbDetailFields }}" as="f" hint-placeholder-count="5">
+                        <div style="display: flex; align-items: center; gap: 10px">
+                          <div style="width: 84px; flex: 0 0 auto; font-size: 13px; color: var(--color-neutral-700)">{{ f.label }}</div>
+                          <input value="{{ f.value }}" onChange="{{ f.set }}" placeholder="{{ f.ph }}" style="flex: 1; min-width: 0; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 11px 15px; font-size: 14.5px; color: var(--color-text); outline: none" />
+                        </div>
+                      </sc-for>
+                      <div style="display: flex; flex-direction: column; gap: 7px; padding-top: 3px">
+                        <div style="font-size: 13px; color: var(--color-neutral-700); padding-left: 4px">处理法</div>
+                        <div style="display: flex; gap: 7px; flex-wrap: wrap">
+                          <sc-for list="{{ nbProcessOpts }}" as="p" hint-placeholder-count="5">
+                            <div onClick="{{ p.pick }}" style="font-size: 13.5px; font-weight: 500; padding: 9px 14px; border-radius: 999px; cursor: pointer; background: {{ p.bg }}; color: {{ p.fg }}; border: 1px solid {{ p.border }}; white-space: nowrap; flex: 0 0 auto" style-active="opacity: 0.7">{{ p.name }}</div>
+                          </sc-for>
+                        </div>
+                      </div>
+                      <sc-if value="{{ nbCustomProcess }}" hint-placeholder-val="{{ true }}">
+                        <input value="{{ nbProcessText }}" onChange="{{ nbSetProcess }}" placeholder="自己填，例如 厌氧日晒 / 酒桶发酵" style="background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-accent) 52%, transparent); border-radius: 999px; padding: 11px 15px; font-size: 14.5px; color: var(--color-text); outline: none" />
+                      </sc-if>
+                      <div style="display: flex; flex-direction: column; gap: 7px">
+                        <div style="font-size: 13px; color: var(--color-neutral-700); padding-left: 4px">烘焙度</div>
+                        <div style="display: flex; gap: 7px; flex-wrap: wrap">
+                          <sc-for list="{{ nbRoastOpts }}" as="p" hint-placeholder-count="4">
+                            <div onClick="{{ p.pick }}" style="font-size: 13.5px; font-weight: 500; padding: 9px 14px; border-radius: 999px; cursor: pointer; background: {{ p.bg }}; color: {{ p.fg }}; border: 1px solid {{ p.border }}; white-space: nowrap; flex: 0 0 auto" style-active="opacity: 0.7">{{ p.name }}</div>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </div>
+                  </sc-if>
+                  <div style="display: flex; flex-direction: column; gap: 9px">
+                    <div style="font-size: 13px; color: var(--color-neutral-700); padding-left: 4px">图标颜色</div>
+                    <div style="display: flex; gap: 7px">
+                      <sc-for list="{{ nbSwatchOpts }}" as="c" hint-placeholder-count="6">
+                        <div onClick="{{ c.pick }}" style="width: 28px; height: 28px; border-radius: 999px; background: {{ c.c }}; border: {{ c.ring }}; box-shadow: 0 0 0 2px var(--color-accent-100); cursor: pointer" style-active="opacity: 0.6"></div>
+                      </sc-for>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 9px">
+                      <div style="width: 28px; height: 28px; border-radius: 999px; background: {{ nbHexPreview }}; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); flex: 0 0 auto"></div>
+                      <input value="{{ nbHex }}" onChange="{{ nbSetHex }}" placeholder="自定义：#c67139 或 rgb(198,113,57)" style="flex: 1; min-width: 0; background: var(--color-neutral-100); border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); border-radius: 999px; padding: 10px 14px; font-size: 13.5px; color: var(--color-text); outline: none" />
+                    </div>
+                  </div>
+                  <div style="display: flex; background: color-mix(in srgb, var(--color-text) 7%, transparent); border-radius: 999px; padding: 3px">
+                    <sc-for list="{{ nbOwnerOpts }}" as="o" hint-placeholder-count="2">
+                      <div onClick="{{ o.pick }}" style="flex: 1; text-align: center; font-size: 14px; font-weight: 600; padding: 9px 0; border-radius: 999px; cursor: pointer; background: {{ o.bg }}; color: {{ o.fg }}; box-shadow: {{ o.shadow }}">{{ o.label }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="display: flex; gap: 9px">
+                    <div onClick="{{ nbCancel }}" style="flex: 0 0 auto; padding: 13px 20px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--color-text) 13%, transparent); font-size: 15px; font-weight: 600; color: var(--color-neutral-700); cursor: pointer; text-align: center" style-active="opacity: 0.6">取消</div>
+                    <div onClick="{{ nbAdd }}" style="flex: 1; padding: 13px 0; border-radius: 999px; background: {{ nbAddBg }}; color: {{ nbAddFg }}; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center" style-active="opacity: 0.8">{{ nbAddLabel }}</div>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ nbClosed }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ openNewBeanFromRecord }}" style="display: flex; align-items: center; justify-content: center; gap: 7px; background: var(--color-neutral-100); border: 1px dashed color-mix(in srgb, var(--color-accent) 52%, transparent); border-radius: 20px; padding: 15px; font-size: 15px; font-weight: 600; color: var(--color-accent-700); cursor: pointer; min-height: 44px; box-sizing: border-box" style-active="background: var(--color-accent-100)">
+                  <span style="font-size: 19px; line-height: 1; margin-top: -2px">＋</span> 新建豆子
+                </div>
+              </sc-if>
+              <sc-for list="{{ beanGroups }}" as="g" hint-placeholder-count="3">
+                <div style="display: flex; flex-direction: column; gap: 8px">
+                  <div style="font-size: 12px; letter-spacing: 0.1em; color: var(--color-neutral-600); font-weight: 600; padding: 0 6px">{{ g.title }}</div>
+                  <div style="background: var(--color-neutral-100); border-radius: 20px; box-shadow: var(--shadow-sm); overflow: hidden">
+                    <sc-for list="{{ g.items }}" as="b" hint-placeholder-count="3">
+                      <div onClick="{{ b.pick }}" style="display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid color-mix(in srgb, var(--color-text) 7%, transparent); cursor: pointer; background: {{ b.rowBg }}; min-height: 44px" style-active="background: var(--color-neutral-200)">
+                        <div style="width: 34px; height: 34px; border-radius: 999px; background: {{ b.swatch }}; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; font-family: var(--font-heading); font-size: 12px; color: {{ b.ink }}">{{ b.initial }}</div>
+                        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px">
+                          <div style="font-size: 15px; font-weight: 600">{{ b.name }}</div>
+                          <div style="font-size: 12px; color: var(--color-neutral-700)">{{ b.sub }}</div>
+                        </div>
+                        <div style="font-size: 17px; color: var(--color-accent-700); width: 18px; text-align: right">{{ b.check }}</div>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </x-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:450,&quot;height&quot;:1040},&quot;cardDetail&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;精简&quot;,&quot;完整&quot;],&quot;default&quot;:&quot;完整&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;时间线&quot;},&quot;quickPresets&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;新建记录&quot;}}">
+const BEANS = {
+  y2: { origin: '云南', farm: '天皓庄园', roaster: '自家烘焙', process: '水洗', roast: '中浅烘', flavor: '坚果、红糖、淡淡的柑橘', season: '2025-2026', agtron: '72', roastDate: '8/20', mine: true, swatch: 'var(--color-accent-2-500)' },
+  e1: { origin: '埃塞俄比亚', region: '古吉', farm: '罕贝拉', variety: '原生种', roaster: '治光咖啡', process: '水洗', roast: '浅烘', flavor: '茉莉、白桃、柠檬茶', season: '2025-2026', agtron: '82', roastDate: '8/12', mine: true, swatch: 'var(--color-accent)' },
+  c1: { origin: '哥伦比亚', region: '慧兰', variety: 'Caturra', roaster: '自家烘焙', process: '蜜处理', roast: '中浅烘', mine: true, swatch: 'var(--color-accent-600)' },
+  y1: { origin: '云南', region: '保山', variety: '铁皮卡', roaster: '自家烘焙', process: '水洗', roast: '中浅烘', mine: true, swatch: 'var(--color-accent-2-600)' },
+  b1: { origin: '巴西', region: '喜拉多', variety: 'Mundo Novo', roaster: '豆叔烘焙', process: '日晒', roast: '中深烘', mine: true, swatch: 'var(--color-accent-800)' },
+  s1: { origin: '埃塞俄比亚', region: '耶加雪菲', roaster: 'Seesaw', process: '日晒', roast: '浅烘', mine: false, swatch: 'var(--color-accent-400)' },
+  s2: { name: 'Manner 招牌拼配', roaster: 'Manner', process: '拼配', roast: '中深烘', mine: false, swatch: 'var(--color-accent-700)' },
+  s3: { name: '% Arabica 招牌拼配', roaster: '% Arabica', process: '拼配', roast: '中深烘', mine: false, swatch: 'var(--color-accent-2-700)' },
+};
+const SWATCHES = [
+  'var(--color-accent-300)', 'var(--color-accent-400)', 'var(--color-accent)',
+  'var(--color-accent-600)', 'var(--color-accent-700)', 'var(--color-accent-800)',
+];
+const normHex = (raw) => {
+  let s = (raw || '').trim();
+  const m = s.match(/^rgba?\(\s*(\d{1,3})\s*[, ]\s*(\d{1,3})\s*[, ]\s*(\d{1,3})/i);
+  if (m) {
+    const v = [m[1], m[2], m[3]].map(x => Math.max(0, Math.min(255, parseInt(x, 10))));
+    return '#' + v.map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+  s = s.replace(/^#/, '');
+  if (/^[0-9a-f]{3}$/i.test(s)) return '#' + s.split('').map(c => c + c).join('');
+  if (/^[0-9a-f]{6}$/i.test(s)) return '#' + s.toLowerCase();
+  return null;
+};
+const LIGHT_SWATCHES = ['var(--color-accent-400)'];
+const inkFor = (c) => LIGHT_SWATCHES.includes(c) ? 'var(--color-accent-900)' : 'var(--color-accent-100)';
+const PROCESSES = ['水洗', '日晒', '蜜处理', '厌氧', '拼配'];
+const ROASTS = ['浅烘', '中浅烘', '中烘', '中深烘', '深烘'];
+const beanName = (b) => b.name || [b.origin, b.farm || b.region].filter(Boolean).join(' ') || '未命名豆子';
+const beanSub = (b) => {
+  const parts = [b.roaster, b.farm ? b.region : '', b.variety, b.process, b.roast].filter(Boolean);
+  return parts.join(' · ');
+};
+const beanAttrs = (b) => [
+  ['产地', b.origin], ['产区', b.region], ['庄园', b.farm], ['品种', b.variety],
+  ['处理法', b.process], ['产季', b.season],
+  ['烘焙度', b.roast], ['烘焙色值', b.agtron ? 'Agtron ' + b.agtron : ''], ['烘焙日期', b.roastDate],
+  ['烘焙商', b.roaster], ['风味', b.flavor], ['归属', b.mine === false ? '门店豆子' : '我的豆子'],
+].filter(x => x[1]).map(x => ({ k: x[0], v: x[1] }));
+const BRANDS = {
+  self: { name: '自制', self: true },
+  seesaw: { name: 'Seesaw' },
+  manner: { name: 'Manner' },
+  arabica: { name: '% Arabica' },
+};
+const DEVICE_KINDS = [
+  { kind: '滤杯', brew: true }, { kind: '滴滤机', brew: true }, { kind: '浸泡滤杯', brew: true },
+  { kind: '咖啡机', brew: true },
+  { kind: '手磨', grinder: true, gstep: 1, gmin: 1, gmax: 40, gunit: '格' },
+  { kind: '电动磨', grinder: true, gstep: 1, gmin: 1, gmax: 20, gunit: '档' },
+  { kind: '电子秤' },
+];
+const DEVICES = [
+  { name: 'Hario V60 02', kind: '滤杯', brew: true },
+  { name: 'OXO 8 杯滴滤机', kind: '滴滤机', brew: true },
+  { name: '聪明杯', kind: '浸泡滤杯', brew: true },
+  { name: 'Comandante C40', kind: '手磨', grinder: true, gstep: 1, gmin: 5, gmax: 40, gdef: 24, gunit: '格' },
+  { name: '幻刺 Pro', kind: '手磨', grinder: true, gstep: 0.1, gmin: 3, gmax: 12, gdef: 5.6, gunit: '圈' },
+  { name: 'Fellow Ode Gen2', kind: '电动磨', grinder: true, gstep: 1, gmin: 1, gmax: 11, gdef: 7, gunit: '档' },
+  { name: 'Breville 870', kind: '咖啡机' },
+  { name: 'Acaia Pearl', kind: '电子秤' },
+];
+const METHODS = ['滴滤', '美式', '奶咖', '冷萃', '特调 & 其他'];
+const MC = { '滴滤': 'var(--color-accent)', '美式': 'var(--color-accent-800)', '奶咖': 'var(--color-accent-400)', '冷萃': 'var(--color-accent-2)', '特调 & 其他': 'var(--color-neutral-700)' };
+const MT = { '滴滤': 'var(--color-accent-100)', '美式': 'var(--color-accent-200)', '奶咖': 'var(--color-accent-100)', '冷萃': 'var(--color-accent-2-100)', '特调 & 其他': 'var(--color-neutral-200)' };
+
+const R = [
+  { d: 26, t: '08:20', m: '滴滤', b: 'y2', s: 'self', photo: 'cup-0826', gear: 'OXO 8 杯滴滤机', grinder: 'Fellow Ode Gen2', gunit: '档', dose: 15, water: 240, grind: 7, tempC: 93, sec: 140, r: 4, note: '机器做的，算滴滤。粉稍粗了，甜感淡一点' },
+  { d: 26, t: '14:05', m: '美式', b: 's2', s: 'manner', dose: 18, yieldG: 36, sec: 27, r: 3, note: '外带，偏酸' },
+  { d: 25, t: '09:10', m: '奶咖', b: 's3', s: 'arabica', dose: 18, yieldG: 36, milk: 180, r: 4, note: '' },
+  { d: 25, t: '21:30', m: '滴滤', b: 'c1', s: 'self', dose: 14, water: 224, grind: 26, tempC: 90, sec: 125, r: 3, note: '睡前一杯，太淡' },
+  { d: 24, t: '07:55', m: '美式', b: 'y1', s: 'self', dose: 18, yieldG: 40, sec: 30, r: 4, note: '云南做美式意外地好' },
+  { d: 23, t: '08:30', m: '滴滤', b: 'e1', s: 'self', gear: 'Hario V60 02', grinder: '幻刺 Pro', gunit: '圈', dose: 15, water: 255, grind: 5.6, tempC: 94, sec: 140, r: 5, note: '花香很足，尾韵干净' },
+  { d: 23, t: '15:40', m: '冷萃', b: 'b1', s: 'self', ice: true, dose: 60, water: 600, hours: 14, r: 4, note: '' },
+  { d: 22, t: '10:15', m: '奶咖', b: 's2', s: 'manner', ice: true, dose: 18, yieldG: 36, milk: 200, r: 3, note: '' },
+  { d: 21, t: '08:05', m: '滴滤', b: 'c1', s: 'self', ice: true, dose: 15, water: 240, grind: 24, tempC: 92, sec: 138, r: 4, note: '冰滴滤，酸质很跳' },
+  { d: 20, t: '08:40', m: '美式', b: 's2', s: 'self', ice: true, dose: 18, yieldG: 36, water: 120, sec: 28, r: 4, note: '' },
+  { d: 18, t: '13:20', m: '奶咖', b: 's1', s: 'seesaw', ice: true, dose: 18, yieldG: 36, milk: 180, r: 5, note: '冰拿铁，奶味不抢戏' },
+  { d: 17, t: '08:10', m: '滴滤', b: 'e1', s: 'self', dose: 15, water: 240, grind: 23, tempC: 93, sec: 136, r: 4, note: '' },
+  { d: 16, t: '11:00', m: '冷萃', b: 'c1', s: 'self', ice: true, dose: 55, water: 550, hours: 12, r: 3, note: '' },
+  { d: 15, t: '09:20', m: '滴滤', b: 'b1', s: 'self', dose: 16, water: 240, grind: 26, tempC: 90, sec: 150, r: 2, note: '苦，磨太细了' },
+  { d: 14, t: '08:15', m: '滴滤', b: 'e1', s: 'self', gear: 'Hario V60 02', grinder: '幻刺 Pro', gunit: '圈', dose: 15, water: 240, grind: 5.5, tempC: 92, sec: 148, r: 5, note: '目前最稳的一杯' },
+  { d: 13, t: '16:30', m: '奶咖', b: 'y1', s: 'self', dose: 18, yieldG: 36, milk: 180, r: 4, note: '' },
+  { d: 12, t: '08:00', m: '美式', b: 's2', s: 'manner', dose: 18, yieldG: 36, sec: 26, r: 3, note: '' },
+  { d: 11, t: '09:45', m: '滴滤', b: 'c1', s: 'self', ice: true, dose: 15, water: 225, grind: 24, tempC: 92, sec: 130, r: 4, note: '' },
+  { d: 10, t: '08:25', m: '滴滤', b: 'e1', s: 'self', dose: 15, water: 240, grind: 24, tempC: 92, sec: 144, r: 4, note: '' },
+  { d: 9, t: '14:10', m: '冷萃', b: 'b1', s: 'self', ice: true, dose: 60, water: 600, hours: 14, r: 4, note: '' },
+  { d: 8, t: '10:30', m: '奶咖', b: 's3', s: 'arabica', dose: 18, yieldG: 36, milk: 180, r: 5, note: '店里的燕麦拿铁' },
+  { d: 7, t: '08:05', m: '滴滤', b: 'y1', s: 'self', dose: 15, water: 240, grind: 25, tempC: 92, sec: 140, r: 3, note: '' },
+  { d: 6, t: '08:00', m: '美式', b: 's2', s: 'self', dose: 18, yieldG: 38, sec: 29, r: 4, note: '' },
+  { d: 5, t: '08:12', m: '滴滤', b: 'e1', s: 'self', gear: '聪明杯', grinder: 'Comandante C40', gunit: '格', dose: 15, water: 240, grind: 24, tempC: 92, sec: 135, r: 5, note: '甜感和花香都在' },
+  { d: 4, t: '12:40', m: '奶咖', b: 's2', s: 'manner', ice: true, dose: 18, yieldG: 36, milk: 200, r: 3, note: '' },
+  { d: 3, t: '08:30', m: '滴滤', b: 'b1', s: 'self', dose: 15, water: 240, grind: 25, tempC: 91, sec: 145, r: 3, note: '' },
+  { d: 2, t: '09:00', m: '滴滤', s: 'self', dose: 15, note: '' },
+  { d: 1, t: '08:40', m: '滴滤', b: 'c1', s: 'self', dose: 15, water: 240, grind: 24, tempC: 92, sec: 140, r: 4, note: '' },
+];
+
+const FIELDS = {
+  '滴滤': [
+    { k: 'dose', label: '粉量', unit: 'g', step: 0.5, min: 5 },
+    { k: 'water', label: '水量', unit: 'g', step: 5, min: 50 },
+    { k: 'grind', label: '研磨', unit: '格', step: 1, min: 1 },
+    { k: 'tempC', label: '水温', unit: '°C', step: 1, min: 60 },
+    { k: 'sec', label: '时间', unit: 'time', step: 5, min: 30 },
+  ],
+  '美式': [
+    { k: 'dose', label: '粉量', unit: 'g', step: 0.5, min: 5 },
+    { k: 'yieldG', label: '浓缩液重', unit: 'g', step: 1, min: 5 },
+    { k: 'water', label: '加水', unit: 'ml', step: 10, min: 0 },
+    { k: 'sec', label: '时间', unit: '秒', step: 1, min: 5 },
+  ],
+  '奶咖': [
+    { k: 'dose', label: '浓缩粉量', unit: 'g', step: 0.5, min: 5 },
+    { k: 'yieldG', label: '浓缩液重', unit: 'g', step: 1, min: 5 },
+    { k: 'milk', label: '奶量', unit: 'ml', step: 10, min: 30 },
+  ],
+  '冷萃': [
+    { k: 'dose', label: '粉量', unit: 'g', step: 5, min: 10 },
+    { k: 'water', label: '水量', unit: 'g', step: 50, min: 100 },
+    { k: 'hours', label: '浸泡', unit: '小时', step: 1, min: 1 },
+  ],
+  '特调 & 其他': [
+    { k: 'dose', label: '粉量', unit: 'g', step: 0.5, min: 5 },
+    { k: 'yieldG', label: '浓缩液重', unit: 'g', step: 1, min: 5 },
+    { k: 'milk', label: '奶 / 其他液体', unit: 'ml', step: 10, min: 0 },
+  ],
+};
+const ICE_EXTRA = {};
+
+const DEFAULTS = {
+  '滴滤': { dose: 15, water: 240, tempC: 92, sec: 140 },
+  '美式': { dose: 18, yieldG: 36, water: 120, sec: 27 },
+  '奶咖': { dose: 18, yieldG: 36, milk: 180 },
+  '冷萃': { dose: 60, water: 600, hours: 14 },
+  '特调 & 其他': { dose: 18, yieldG: 36, milk: 120 },
+};
+
+const TODAY = new Date(2026, 7, 26);
+const WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+const dayFrom = (off) => new Date(2026, 7, 26 - off);
+const recKey = (r) => (r.mon || 8) * 100 + r.d;
+const grindNum = (rec) => {
+  const dec = (rec.gunit === '圈' || String(rec.grind).includes('.')) ? 1 : 0;
+  return dec ? Number(rec.grind).toFixed(1) : String(rec.grind);
+};
+const grindText = (rec) => grindNum(rec) + (rec.gunit || '格');
+const mmss = (s) => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+const one = (n) => (Math.round(n * 10) / 10).toFixed(1);
+const g = (n) => (n % 1 === 0 ? String(n) : one(n));
+
+function ratioOf(rec) {
+  if (rec.m === '滴滤' || rec.m === '冷萃') {
+    if (!rec.dose || !rec.water) return null;
+    return { label: '粉水比', value: '1:' + one(rec.water / rec.dose) };
+  }
+  if (rec.m === '美式') {
+    if (!rec.dose || !rec.yieldG) return null;
+    return { label: '萃取比', value: '1:' + one(rec.yieldG / rec.dose) };
+  }
+  if (!rec.yieldG || !rec.milk) return null;
+  return { label: rec.m === '特调 & 其他' ? '液体比' : '奶咖比', value: '1:' + one(rec.milk / rec.yieldG) };
+}
+
+function paramText(rec) {
+  const out = [];
+  if (rec.gear) out.push(rec.gear);
+  if (rec.dose) out.push(g(rec.dose) + 'g 粉');
+  if (rec.water && rec.m !== '美式') out.push(rec.water + 'g 水');
+  if (rec.m === '美式' && rec.water) out.push('加水 ' + rec.water + 'ml');
+  if (rec.yieldG) out.push('液重 ' + rec.yieldG + 'g');
+  if (rec.milk) out.push((rec.m === '特调 & 其他' ? '液体 ' : '奶 ') + rec.milk + 'ml');
+  if (rec.grind) out.push((rec.grinder ? rec.grinder + ' ' : '研磨 ') + grindText(rec));
+  else if (rec.grinder) out.push(rec.grinder);
+  if (rec.tempC) out.push(rec.tempC + '°C');
+  if (rec.sec) out.push(rec.m === '美式' ? rec.sec + '″' : mmss(rec.sec));
+  if (rec.hours) out.push('浸泡 ' + rec.hours + 'h');
+  return out.join(' · ');
+}
+
+class Component extends DCLogic {
+  state = {
+    tab: 'timeline', stack: [], sheet: false,
+    method: '滴滤', ice: false, beanId: 'e1', storeId: 'self', rating: 4, note: '', gear: 'Hario V60 02', grinder: '幻刺 Pro',
+    vals: JSON.parse(JSON.stringify(DEFAULTS)),
+    records: R.map((r, i) => ({ ...r, id: 'r' + i })),
+    newId: null, beanTab: '我的',
+    nb: { open: false, more: false, name: '', origin: '', region: '', farm: '', variety: '', roaster: '', flavor: '', season: '', agtron: '', roastDate: '', process: '水洗', customProcess: false, roast: '中浅烘', mine: true, swatch: SWATCHES[0] },
+    ns: { open: false, name: '' },
+    eb: { open: false }, confirmDel: null, nbFrom: 'record', cardMenu: null,
+    devices: DEVICES.slice(), nd: { open: false, name: '', kind: '滤杯', gstep: 1, gmin: '', gmax: '' },
+    hexNb: '', hexEb: '', hexBd: '', photo: null, photoSheet: false,
+    dayOff: 0, hh: 8, mm: 20, timeSheet: false,
+  };
+
+  setNB = (k, v) => this.setState(s => ({ nb: { ...s.nb, [k]: v } }));
+  setND = (k, v) => this.setState(s => ({ nd: { ...s.nd, [k]: v } }));
+  addDevice = () => {
+    const nd = this.state.nd;
+    if (!nd.name.trim()) return;
+    const meta = DEVICE_KINDS.find(k => k.kind === nd.kind) || {};
+    this.setState(s => ({
+      devices: [...s.devices, {
+        name: nd.name.trim(), kind: nd.kind, brew: meta.brew, grinder: meta.grinder,
+        gstep: meta.grinder ? nd.gstep : undefined,
+        gunit: meta.grinder ? (nd.gstep < 1 ? '圈' : (meta.gunit || '格')) : undefined,
+        gmin: meta.grinder ? (Number(nd.gmin) || (nd.gstep < 1 ? 1 : 1)) : undefined,
+        gmax: meta.grinder ? (Number(nd.gmax) || (nd.gstep < 1 ? 12 : 40)) : undefined,
+        gdef: meta.grinder ? (() => {
+          const lo = Number(nd.gmin) || 1, hi = Number(nd.gmax) || (nd.gstep < 1 ? 12 : 40);
+          const mid = lo + (hi - lo) / 2;
+          return Math.round(mid / nd.gstep) * nd.gstep;
+        })() : undefined,
+      }],
+      nd: { open: false, name: '', kind: '滤杯', gstep: 1, gmin: '', gmax: '' },
+    }));
+  };
+  removeDevice = (name) => this.setState(s => {
+    const devices = s.devices.filter(d => d.name !== name);
+    const firstBrew = devices.find(d => d.brew), firstGrind = devices.find(d => d.grinder);
+    return {
+      devices,
+      gear: s.gear === name ? (firstBrew ? firstBrew.name : null) : s.gear,
+      grinder: s.grinder === name ? (firstGrind ? firstGrind.name : null) : s.grinder,
+    };
+  });
+  applyHex = (which, raw, beanId) => {
+    const key = which === 'nb' ? 'hexNb' : which === 'eb' ? 'hexEb' : 'hexBd';
+    const hex = normHex(raw);
+    this.setState({ [key]: raw });
+    if (!hex) return;
+    if (which === 'nb') this.setNB('swatch', hex);
+    else if (which === 'eb') this.setEB('swatch', hex);
+    else if (BEANS[beanId]) { BEANS[beanId].swatch = hex; this.forceUpdate(); }
+  };
+  setNS = (k, v) => this.setState(s => ({ ns: { ...s.ns, [k]: v } }));
+  nbDraft() {
+    const nb = this.state.nb, t = (x) => x.trim();
+    return {
+      name: t(nb.name) || undefined, origin: t(nb.origin) || undefined, region: t(nb.region) || undefined,
+      farm: t(nb.farm) || undefined, variety: t(nb.variety) || undefined, flavor: t(nb.flavor) || undefined,
+      roaster: t(nb.roaster) || undefined, process: t(nb.process) || undefined, roast: nb.roast, mine: nb.mine,
+      season: t(nb.season) || undefined, agtron: t(nb.agtron) || undefined, roastDate: t(nb.roastDate) || undefined,
+    };
+  }
+  addBean = () => {
+    const d = this.nbDraft();
+    if (!d.name && !d.origin && !d.farm) return;
+    const id = 'u' + Date.now();
+    const next = SWATCHES[(SWATCHES.indexOf(this.state.nb.swatch) + 1) % SWATCHES.length];
+    BEANS[id] = { ...d, swatch: this.state.nb.swatch };
+    const fromRecord = this.state.nbFrom === 'record';
+    this.setState({
+      beanId: fromRecord ? id : this.state.beanId, sheet: false, beanTab: d.mine ? '我的' : '门店',
+      nb: { open: false, more: false, name: '', origin: '', region: '', farm: '', variety: '', roaster: '', flavor: '', season: '', agtron: '', roastDate: '', process: '水洗', customProcess: false, roast: '中浅烘', mine: true, swatch: next },
+    });
+  };
+  addStore = () => {
+    const ns = this.state.ns;
+    if (!ns.name.trim()) return;
+    const id = 'b' + Date.now();
+    BRANDS[id] = { name: ns.name.trim() };
+    this.setState({ storeId: id, ns: { open: false, name: '' } });
+  };
+
+  view() { const s = this.state.stack; return s.length ? s[s.length - 1] : { screen: this.state.tab }; }
+  nav = (screen, param) => this.setState(s => ({ stack: [...s.stack, { screen, param }] }));
+  back = () => this.setState(s => ({ stack: s.stack.slice(0, -1) }));
+  setTab = (tab) => this.setState({ tab, stack: [] });
+  bump = (k, dir) => {
+    const f = this.curFields().find(x => x.k === k);
+    this.setState(s => {
+      const m = s.method, v = { ...s.vals[m] };
+      if (v[k] == null) {
+        const d = f.def != null ? f.def : DEFAULTS[m][k];
+        v[k] = (d != null && (f.max == null || d <= f.max) && d >= f.min) ? d : f.min;
+      } else {
+        let n = Math.round((v[k] + dir * f.step) * 100) / 100;
+        n = Math.max(f.min, n);
+        if (f.max != null) n = Math.min(f.max, n);
+        v[k] = n;
+      }
+      return { vals: { ...s.vals, [m]: v } };
+    });
+  };
+  clearField = (k) => this.setState(s => ({ vals: { ...s.vals, [s.method]: { ...s.vals[s.method], [k]: null } } }));
+  pickSource = (k) => this.setState(s => {
+    if (k === 'self') {
+      const v = {};
+      Object.keys(s.vals[s.method]).forEach(x => { v[x] = v[x] != null ? v[x] : (DEFAULTS[s.method][x] != null ? DEFAULTS[s.method][x] : null); });
+      return { storeId: 'self', vals: { ...s.vals, [s.method]: { ...s.vals[s.method], ...v } } };
+    }
+    const vals = {};
+    Object.keys(s.vals).forEach(m => {
+      vals[m] = {};
+      Object.keys(s.vals[m]).forEach(x => { vals[m][x] = null; });
+    });
+    return {
+      storeId: s.storeId === 'self' ? Object.keys(BRANDS).find(id => !BRANDS[id].self) : s.storeId,
+      vals,
+    };
+  });
+  pickMethod = (n) => this.setState(s => {
+    if (s.storeId === 'self') return { method: n };
+    const blank = {};
+    Object.keys(s.vals[n]).forEach(x => { blank[x] = null; });
+    return { method: n, vals: { ...s.vals, [n]: blank } };
+  });
+  deleteBean = (id) => {
+    delete BEANS[id];
+    this.setState(s => ({
+      stack: s.stack.filter(x => !(x.screen === 'beanDetail' && x.param === id)),
+      beanId: s.beanId === id ? Object.keys(BEANS)[0] : s.beanId,
+      records: s.records.filter(r => r.b !== id),
+      confirmDel: null,
+    }));
+  };
+  deleteRecord = (id) => this.setState(s => ({ records: s.records.filter(r => r.id !== id), cardMenu: null }));
+  startEdit = (id) => {
+    const b = BEANS[id];
+    this.setState({
+      eb: {
+        open: true, id,
+        name: b.name || '', origin: b.origin || '', region: b.region || '', farm: b.farm || '',
+        variety: b.variety || '', roaster: b.roaster || '', flavor: b.flavor || '',
+        season: b.season || '', agtron: b.agtron || '', roastDate: b.roastDate || '',
+        process: b.process || '', customProcess: !PROCESSES.includes(b.process || ''),
+        roast: b.roast || '中浅烘', swatch: b.swatch, mine: b.mine !== false,
+      },
+    });
+  };
+  setEB = (k, v) => this.setState(s => ({ eb: { ...s.eb, [k]: v } }));
+  saveEdit = () => {
+    const e = this.state.eb, t = (x) => (x || '').trim();
+    if (!t(e.name) && !t(e.origin) && !t(e.farm)) return;
+    BEANS[e.id] = {
+      ...BEANS[e.id],
+      name: t(e.name) || undefined, origin: t(e.origin) || undefined, region: t(e.region) || undefined,
+      farm: t(e.farm) || undefined, variety: t(e.variety) || undefined, roaster: t(e.roaster) || undefined,
+      flavor: t(e.flavor) || undefined,
+      season: t(e.season) || undefined, agtron: t(e.agtron) || undefined, roastDate: t(e.roastDate) || undefined,
+      process: t(e.process) || undefined, roast: e.roast, swatch: e.swatch, mine: e.mine,
+    };
+    this.setState({ eb: { open: false } });
+  };
+  clearAllFields = () => this.setState(s => {
+    const v = {};
+    Object.keys(s.vals[s.method]).forEach(k => { v[k] = null; });
+    return { vals: { ...s.vals, [s.method]: v } };
+  });
+  curGrinder(st) {
+    const s = st || this.state;
+    return s.devices.find(d => d.grinder && d.name === s.grinder) || null;
+  }
+  grindSpec(st) {
+    const g = this.curGrinder(st);
+    if (!g) return null;
+    const step = g.gstep || 1;
+    return {
+      step, min: g.gmin != null ? g.gmin : 1, max: g.gmax,
+      unit: g.gunit || '格', dec: step < 1 ? 1 : 0,
+      def: g.gdef != null ? g.gdef : (g.gmin != null ? g.gmin : 1),
+    };
+  }
+  clampGrind(v, spec) {
+    if (v == null || !spec) return v;
+    const n = Math.round(v / spec.step) * spec.step;
+    const c = Math.min(spec.max != null ? spec.max : n, Math.max(spec.min, n));
+    return Math.round(c * 100) / 100;
+  }
+  pickGrinder = (name) => this.setState(s => {
+    const next = { ...s, grinder: name };
+    const spec = this.grindSpec(next);
+    const cur = s.vals[s.method] || {};
+    const vals = cur.grind == null ? s.vals
+      : { ...s.vals, [s.method]: { ...cur, grind: spec ? spec.def : cur.grind } };
+    return { grinder: name, vals };
+  });
+  curFields() {
+    const list = FIELDS[this.state.method].slice();
+    const spec = this.grindSpec();
+    if (spec) {
+      const i = list.findIndex(f => f.k === 'grind');
+      if (i >= 0) list[i] = { ...list[i], step: spec.step, min: spec.min, max: spec.max, unit: spec.unit, dec: spec.dec, def: spec.def };
+    }
+    const extra = this.state.ice && ICE_EXTRA[this.state.method];
+    if (extra) list.push(extra);
+    return list;
+  }
+  save = () => {
+    const s = this.state, v = s.vals[s.method];
+    const now = new Date();
+    const clean = {};
+    const gspec = this.grindSpec();
+    this.curFields().forEach(f => {
+      if (v[f.k] == null) return;
+      clean[f.k] = f.k === 'grind' ? this.clampGrind(v[f.k], gspec) : v[f.k];
+    });
+    const rec = {
+      ...clean, id: 'n' + Date.now(), d: dayFrom(s.dayOff).getDate(), mon: dayFrom(s.dayOff).getMonth() + 1,
+      m: s.method, b: s.beanId, s: s.storeId,
+      ice: s.ice || undefined, r: s.rating, note: s.note,
+      gear: (s.method === '滴滤' && s.storeId === 'self') ? s.gear : undefined,
+      grinder: (s.method === '滴滤' && s.storeId === 'self') ? s.grinder : undefined,
+      gunit: (s.method === '滴滤' && s.storeId === 'self' && gspec) ? gspec.unit : undefined,
+      t: String(s.hh).padStart(2, '0') + ':' + String(s.mm).padStart(2, '0'),
+      photo: s.photo || undefined,
+    };
+    this.setState(st => ({ records: [rec, ...st.records], stack: [], tab: 'timeline', newId: rec.id, note: '', photo: null }));
+  };
+
+  cardOf(rec, opts) {
+    const b = rec.b ? BEANS[rec.b] : null;
+    const ratio = ratioOf(rec);
+    const rated = typeof rec.r === 'number';
+    const full = this.props.cardDetail !== '精简';
+    return {
+      id: rec.id, beanId: rec.b, storeId: rec.s,
+      beanName: b ? beanName(b) : '未选豆子',
+      beanSub: b ? beanSub(b) : '只记了粉量',
+      storeName: (BRANDS[rec.s] || BRANDS.self).name,
+      time: rec.t, methodLabel: rec.m + (rec.ice ? ' · 冰' : ''),
+      color: MC[rec.m], tint: MT[rec.m],
+      ratio: ratio ? ratio.value : '',
+      params: paramText(rec), showParams: full && !!paramText(rec),
+      note: rec.note || '',
+      filled: rated ? '★'.repeat(rec.r) : '', empty: rated ? '☆'.repeat(5 - rec.r) : '未评分',
+      dateLabel: (rec.mon || 8) + '/' + rec.d,
+      bg: rec.id === this.state.newId ? 'var(--color-accent-100)' : 'var(--color-neutral-100)',
+      menuOpen: this.state.cardMenu === rec.id,
+      menuClosed: this.state.cardMenu !== rec.id,
+      openMenu: (e) => { if (e) e.stopPropagation(); this.setState({ cardMenu: rec.id }); },
+      closeMenu: (e) => { if (e) e.stopPropagation(); this.setState({ cardMenu: null }); },
+      del: (e) => { if (e) e.stopPropagation(); this.deleteRecord(rec.id); },
+      photo: rec.photo || '', hasPhoto: !!rec.photo,
+      open: () => this.nav('recordDetail', rec.id),
+      openBean: rec.b ? (e) => { if (e) e.stopPropagation(); this.nav('beanDetail', rec.b); } : () => {},
+      openStore: (e) => { if (e) e.stopPropagation(); this.nav('storeDetail', rec.s); },
+      ...opts,
+    };
+  }
+
+  renderVals() {
+    const st = this.state, v = this.view();
+    const recs = st.records;
+    const rated = recs.filter(r => typeof r.r === 'number');
+    const dots = (n, c) => Array.from({ length: n }, () => ({ c }));
+
+    // timeline groups
+    const byDay = {};
+    recs.forEach(r => { const k = recKey(r); (byDay[k] = byDay[k] || []).push(r); });
+    const groups = Object.keys(byDay).map(Number).sort((a, b) => b - a).map(k => {
+      const mon = Math.floor(k / 100), d = k % 100;
+      const dt = new Date(2026, mon - 1, d);
+      const diff = Math.round((TODAY - dt) / 86400000);
+      return {
+        label: mon + ' 月 ' + d + ' 日',
+        sub: diff === 0 ? '今天' : diff === 1 ? '昨天' : WD[dt.getDay()],
+        items: byDay[k].map(r => this.cardOf(r)),
+      };
+    });
+
+    // stats
+    const mNames = METHODS;
+    const methodStats = mNames.map(n => {
+      const k = recs.filter(r => r.m === n).length;
+      return { name: n, n: k, pct: Math.round(k / recs.length * 100) + '%', dots: dots(k, MC[n]) };
+    }).sort((a, b) => b.n - a.n);
+    const iceN = recs.filter(r => r.ice).length;
+    const tempStats = [
+      { name: '热', n: recs.length - iceN, pct: Math.round((recs.length - iceN) / recs.length * 100) + '%', dots: dots(recs.length - iceN, 'var(--color-accent)') },
+      { name: '冰', n: iceN, pct: Math.round(iceN / recs.length * 100) + '%', dots: dots(iceN, 'var(--color-accent-2)') },
+    ];
+    const ratingStats = [5, 4, 3, 2, 1].map(x => {
+      const k = rated.filter(r => r.r === x).length;
+      return { name: '★'.repeat(x), n: k, dots: dots(k, 'var(--color-accent)') };
+    });
+
+    // bean list
+    const beanStat = (id) => {
+      const rs = recs.filter(r => r.b === id);
+      const rr = rs.filter(r => typeof r.r === 'number');
+      return { count: rs.length, avg: rr.length ? one(rr.reduce((a, r) => a + r.r, 0) / rr.length) : '—', records: rs };
+    };
+    const beanList = Object.keys(BEANS).filter(id => BEANS[id].mine === (st.beanTab === '我的')).map(id => {
+      const b = BEANS[id], s = beanStat(id);
+      return { id, name: beanName(b), sub: beanSub(b), swatch: b.swatch, ink: inkFor(b.swatch), initial: beanName(b).slice(0, 1), count: s.count, avg: s.avg, open: () => this.nav('beanDetail', id) };
+    });
+
+    // bean detail
+    let bd = null;
+    if (v.screen === 'beanDetail' && BEANS[v.param]) {
+      const id = v.param, b = BEANS[id], s = beanStat(id);
+      const five = s.records.filter(r => r.r === 5);
+      const method = five.length ? five[0].m : null;
+      const cols = five.filter(r => r.m === method).slice(0, 3);
+      const rows = [];
+      if (cols.length >= 2) {
+        const cfg = FIELDS[method];
+        const mk = (label, vals, forceNoDiff) => {
+          const diff = !forceNoDiff && new Set(vals).size > 1;
+          return { label, diff, cells: vals.map(x => ({ v: x, bg: diff ? 'var(--color-accent-100)' : 'transparent', fg: diff ? 'var(--color-accent-700)' : 'var(--color-text)' })) };
+        };
+        const mixedGrinders = new Set(cols.map(r => r.grinder || '')).size > 1;
+        cfg.forEach(f => {
+          if (f.k === 'grind') {
+            const vals = cols.map(r => r.grind == null ? '—' : grindText(r));
+            rows.push(mk('研磨', vals, mixedGrinders));
+            return;
+          }
+          const vals = cols.map(r => {
+            const x = r[f.k];
+            if (x == null) return '—';
+            return f.unit === 'time' ? mmss(x) : g(x);
+          });
+          rows.push(mk(f.label + (f.unit === 'time' || f.unit === 'g' || f.unit === '秒' ? '' : '（' + f.unit + '）'), vals));
+        });
+        rows.push(mk('比例', cols.map(r => { const q = ratioOf(r); return q ? q.value : '—'; })));
+        if (method === '滴滤' && cols.some(r => r.grinder)) rows.unshift(mk('磨豆机', cols.map(r => r.grinder || '—')));
+        if (method === '滴滤' && cols.some(r => r.gear)) rows.unshift(mk('器具', cols.map(r => r.gear || '—')));
+      }
+      const ratioCount = {};
+      s.records.filter(r => typeof r.r === 'number' && r.r >= 4).forEach(r => { const q = ratioOf(r); if (q) ratioCount[q.value] = (ratioCount[q.value] || 0) + 1; });
+      const bestRatio = Object.keys(ratioCount).sort((a, b) => ratioCount[b] - ratioCount[a])[0] || '—';
+      bd = {
+        name: beanName(b), sub: b.roaster || '', swatch: b.swatch, ink: inkFor(b.swatch), initial: beanName(b).slice(0, 1),
+        attrs: beanAttrs(b),
+        swatchOpts: SWATCHES.map(c => ({
+          c, ring: b.swatch === c ? '2px solid var(--color-text)' : '2px solid transparent',
+          pick: () => { BEANS[id].swatch = c; this.forceUpdate(); },
+        })),
+        hex: st.hexBd,
+        setHex: (e) => this.applyHex('bd', e.target.value, id),
+        hexPreview: normHex(st.hexBd) || b.swatch,
+        hexValid: !!normHex(st.hexBd),
+        count: s.count, avg: s.avg, bestRatio,
+        confirming: st.confirmDel === id,
+        notConfirming: st.confirmDel !== id,
+        deleteLabel: s.records.length ? '删除豆子和 ' + s.records.length + ' 条记录' : '删除这支豆子',
+        confirmLabel: s.records.length ? '确认删除？' + s.records.length + ' 条记录会一起删掉' : '确认删除？',
+        askDel: () => this.setState({ confirmDel: id }),
+        cancelDel: () => this.setState({ confirmDel: null }),
+        del: () => this.deleteBean(id),
+        edit: () => this.startEdit(id),
+        hasCompare: rows.length > 0,
+        compareTitle: '5 星的 ' + cols.length + ' 杯（' + (method || '') + '）',
+        compareCols: cols.map(r => ({ date: '8/' + r.d, store: (BRANDS[r.s] || BRANDS.self).name })),
+        compareRows: rows,
+        records: s.records.map(r => this.cardOf(r)),
+      };
+    }
+
+    // store detail
+    let sd = null;
+    if (v.screen === 'storeDetail') {
+      const id = v.param, s = BRANDS[id] || BRANDS.self;
+      const rs = recs.filter(r => r.s === id);
+      const rr = rs.filter(r => typeof r.r === 'number');
+      const cnt = {};
+      rs.forEach(r => { cnt[r.m] = (cnt[r.m] || 0) + 1; });
+      sd = {
+        name: s.name, area: s.self ? '自己做的' : '外面喝的', count: rs.length,
+        avg: rr.length ? one(rr.reduce((a, r) => a + r.r, 0) / rr.length) : '—',
+        topMethod: Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a])[0] || '—',
+        records: rs.map(r => this.cardOf(r)),
+      };
+    }
+
+    // record detail
+    let rd = null;
+    if (v.screen === 'recordDetail') {
+      const rec = recs.find(r => r.id === v.param);
+      if (rec) {
+        const b = rec.b ? BEANS[rec.b] : null;
+        const ratio = ratioOf(rec);
+        const dt = new Date(2026, (rec.mon || 8) - 1, rec.d);
+        const cfg = FIELDS[rec.m] || [];
+        const rows = [];
+        if (rec.gear) rows.push({ k: '冲煮器具', v: rec.gear });
+        if (rec.grinder) rows.push({ k: '磨豆机', v: rec.grinder });
+        cfg.forEach(f => {
+          const x = rec[f.k];
+          if (x == null) return;
+          let val;
+          if (f.k === 'grind') val = grindText(rec);
+          else if (f.unit === 'time') val = mmss(x);
+          else if (f.unit === '秒') val = x + '″';
+          else val = g(x) + (f.unit === '°C' ? '°C' : f.unit);
+          rows.push({ k: f.label, v: val });
+        });
+        if (ratio) rows.push({ k: ratio.label, v: ratio.value });
+        rd = {
+          beanName: b ? beanName(b) : '未选豆子',
+          beanSub: b ? beanSub(b) : '这条只记了部分参数',
+          swatch: b ? b.swatch : 'var(--color-neutral-300)',
+          initial: b ? beanName(b).slice(0, 1) : '?',
+          hasBean: !!b,
+          methodLabel: rec.m + (rec.ice ? ' · 冰' : ''),
+          color: MC[rec.m], tint: MT[rec.m],
+          storeName: (BRANDS[rec.s] || BRANDS.self).name,
+          dateLine: (rec.mon || 8) + ' 月 ' + rec.d + ' 日 · ' + WD[dt.getDay()] + ' · ' + rec.t,
+          filled: typeof rec.r === 'number' ? '★'.repeat(rec.r) : '',
+          empty: typeof rec.r === 'number' ? '☆'.repeat(5 - rec.r) : '未评分',
+          rows, hasRows: rows.length > 0,
+          note: rec.note || '', hasNote: !!rec.note,
+          photo: rec.photo || '', hasPhoto: !!rec.photo,
+          openBean: b ? () => this.nav('beanDetail', rec.b) : () => {},
+          openStore: () => this.nav('storeDetail', rec.s),
+          del: () => { this.deleteRecord(rec.id); this.back(); },
+        };
+      }
+    }
+
+    // new-record form
+    const gspecUI = this.grindSpec();
+    const grindVal = this.clampGrind(st.vals[st.method] ? st.vals[st.method].grind : null, gspecUI);
+    const grindRecents = (() => {
+      if (!gspecUI) return [];
+      const seen = [];
+      recs.forEach(r => {
+        if (r.grind == null || r.grinder !== st.grinder) return;
+        const v = this.clampGrind(r.grind, gspecUI);
+        if (!seen.some(x => x.v === v)) seen.push({ v, label: grindText({ grind: v, gunit: gspecUI.unit }) });
+      });
+      return seen.slice(0, 4).map(x => ({
+        label: x.label,
+        bg: grindVal === x.v ? 'var(--color-accent)' : 'var(--color-neutral-100)',
+        fg: grindVal === x.v ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: grindVal === x.v ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.setState(s => ({ vals: { ...s.vals, [s.method]: { ...s.vals[s.method], grind: x.v } } })),
+      }));
+    })();
+    const grindPct = (gspecUI && grindVal != null && gspecUI.max != null)
+      ? Math.round((grindVal - gspecUI.min) / (gspecUI.max - gspecUI.min) * 100) : 0;
+
+    const fields = (FIELDS[st.method] ? this.curFields() : []).map(f => {
+      const raw = st.vals[st.method][f.k];
+      const x = f.k === 'grind' ? this.clampGrind(raw, this.grindSpec()) : raw;
+      const empty = x == null;
+      return {
+        label: f.label,
+        hide: f.k === 'grind' && !!gspecUI && st.method === '滴滤' && st.storeId === 'self',
+        show: !(f.k === 'grind' && !!gspecUI && st.method === '滴滤' && st.storeId === 'self'),
+        sub: (f.k === 'grind' && st.method === '滴滤' && st.storeId === 'self')
+          ? (st.grinder ? st.grinder + '（每档 ' + (f.step || 1) + f.unit + '）' : '') : '',
+        empty, filled: !empty,
+        display: empty ? '—' : (() => {
+          if (f.unit === 'time') return mmss(x);
+          if (f.unit === '秒') return x + '″';
+          const num = f.dec ? x.toFixed(f.dec) : g(x);
+          return num + (f.unit === '°C' ? '°' : f.unit);
+        })(),
+        color: empty ? 'var(--color-neutral-400)' : 'var(--color-text)',
+        dec: () => this.bump(f.k, -1), inc: () => this.bump(f.k, 1),
+        clear: () => this.clearField(f.k),
+      };
+    });
+    const grindFieldIdx = FIELDS[st.method] ? FIELDS[st.method].findIndex(f => f.k === 'grind') : -1;
+    const probe = { m: st.method, ...st.vals[st.method] };
+    const ratio = ratioOf(probe) || { label: '比例', value: '—' };
+    const pb = BEANS[st.beanId];
+
+    const recent = [];
+    recs.filter(r => r.s === 'self').forEach(r => { if (r.b && recent.length < 3 && !recent.some(x => x.b === r.b && x.m === r.m)) recent.push(r); });
+    const presets = recent.map(r => ({
+      title: (BEANS[r.b].farm || BEANS[r.b].region || beanName(BEANS[r.b])) + ' · ' + r.m,
+      sub: (ratioOf(r) || { value: '' }).value,
+      apply: () => this.setState(s => ({
+        method: r.m, beanId: r.b, storeId: r.s, ice: !!r.ice,
+        vals: { ...s.vals, [r.m]: { ...s.vals[r.m], ...(({ dose, water, yieldG, milk, grind, tempC, sec, hours }) => ({ dose, water, yieldG, milk, grind, tempC, sec, hours }))(r) } },
+      })),
+    }));
+
+    const seg = (on) => ({ bg: on ? 'var(--color-neutral-100)' : 'transparent', fg: on ? 'var(--color-text)' : 'var(--color-neutral-600)', shadow: on ? '0 1px 2px color-mix(in srgb, var(--color-neutral-900) 16%, transparent)' : 'none' });
+    const usedBeans = {};
+    recs.forEach(r => { if (r.b && !usedBeans[r.b]) usedBeans[r.b] = r.d; });
+    const beanRow = (id) => {
+      const b = BEANS[id];
+      return { name: beanName(b), sub: beanSub(b), swatch: b.swatch, ink: inkFor(b.swatch), initial: beanName(b).slice(0, 1), check: st.beanId === id ? '✓' : '', rowBg: st.beanId === id ? 'var(--color-accent-100)' : 'transparent', pick: () => this.setState({ beanId: id, sheet: false }) };
+    };
+    const recentIds = Object.keys(usedBeans).sort((a, b) => usedBeans[b] - usedBeans[a]).slice(0, 3);
+    const beanGroups = [
+      { title: '最近用过', items: recentIds.map(beanRow) },
+      { title: '我的豆子', items: Object.keys(BEANS).filter(k => BEANS[k].mine).map(beanRow) },
+      { title: '门店豆子', items: Object.keys(BEANS).filter(k => !BEANS[k].mine).map(beanRow) },
+    ];
+
+    const icon = (d) => React.createElement('svg', { viewBox: '0 0 24 24', width: 26, height: 26, fill: 'none', stroke: 'currentColor', strokeWidth: 2.75, strokeLinecap: 'round', strokeLinejoin: 'round' }, d.map((p, i) => React.createElement('path', { key: i, d: p })));
+    const tabDefs = [
+      { key: 'timeline', label: '时间线', d: ['M8 6h13', 'M8 12h13', 'M8 18h13', 'M3 6h.01', 'M3 12h.01', 'M3 18h.01'] },
+      { key: 'beans', label: '豆子', d: ['M17 8h1a4 4 0 1 1 0 8h-1', 'M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z', 'M6 2v2', 'M10 2v2', 'M14 2v2'] },
+      { key: 'me', label: '我的', d: ['M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2', 'M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z'] },
+    ];
+
+    const topM = methodStats[0];
+
+    return {
+      isTimeline: v.screen === 'timeline', isBeans: v.screen === 'beans', isMe: v.screen === 'me',
+      isStats: v.screen === 'stats', isBeanDetail: v.screen === 'beanDetail', isStoreDetail: v.screen === 'storeDetail',
+      isRecordDetail: v.screen === 'recordDetail', rd,
+      photoSheet: st.photoSheet,
+      hasPhoto: !!st.photo, noPhoto: !st.photo, photoId: st.photo || '',
+      openPhotoSheet: () => this.setState({ photoSheet: true }),
+      closePhotoSheet: () => this.setState({ photoSheet: false }),
+      takePhoto: () => this.setState({ photo: 'shot-' + Date.now(), photoSheet: false }),
+      pickPhoto: () => this.setState({ photo: 'album-' + Date.now(), photoSheet: false }),
+      dropPhoto: () => this.setState({ photo: null }),
+      isNew: v.screen === 'new', showTabBar: st.stack.length === 0, sheetOpen: st.sheet,
+      groups, monthCount: recs.length,
+      avgRating: one(rated.reduce((a, r) => a + r.r, 0) / rated.length),
+      topMethodPct: topM.pct, topMethodName: topM.name + '占比',
+      methodStats, tempStats, ratingStats,
+      beanList, bd, sd,
+      beanTabs: ['门店', '我的'].map(t => ({ label: t === '我的' ? '我的豆子' : '门店豆子', ...seg(st.beanTab === t), pick: () => this.setState({ beanTab: t }) })),
+      devices: st.devices.map(d => ({
+        name: d.name, kind: d.kind + (d.grinder ? ' · 每档 ' + (d.gstep || 1) + (d.gunit || '格') : ''),
+        remove: () => this.removeDevice(d.name),
+      })),
+      ndOpen: st.nd.open, ndClosed: !st.nd.open, ndName: st.nd.name,
+      ndIsGrinder: !!(DEVICE_KINDS.find(k => k.kind === st.nd.kind) || {}).grinder,
+      ndStepOpts: [{ v: 1, l: '整数（18 · 19 · 20）' }, { v: 0.1, l: '一位小数（5.5 · 5.6）' }].map(o => ({
+        label: o.l,
+        bg: st.nd.gstep === o.v ? 'var(--color-accent-700)' : 'var(--color-neutral-100)',
+        fg: st.nd.gstep === o.v ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: st.nd.gstep === o.v ? 'var(--color-accent-700)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.setND('gstep', o.v),
+      })),
+      ndGmin: st.nd.gmin, ndGmax: st.nd.gmax,
+      ndSetGmin: (e) => this.setND('gmin', e.target.value),
+      ndSetGmax: (e) => this.setND('gmax', e.target.value),
+      ndRangePh: st.nd.gstep < 1 ? ['最小 3', '最大 12'] : ['最小 1', '最大 40'],
+      ndMinPh: st.nd.gstep < 1 ? '最小 3' : '最小 1',
+      ndMaxPh: st.nd.gstep < 1 ? '最大 12' : '最大 40',
+      ndOpenForm: () => this.setND('open', true),
+      ndCancel: () => this.setND('open', false),
+      ndSetName: (e) => this.setND('name', e.target.value),
+      ndAdd: this.addDevice,
+      ndAddBg: st.nd.name.trim() ? 'var(--color-accent)' : 'var(--color-neutral-300)',
+      ndAddFg: st.nd.name.trim() ? 'var(--color-accent-100)' : 'var(--color-neutral-500)',
+      ndKindOpts: DEVICE_KINDS.map(k => ({
+        name: k.kind,
+        bg: st.nd.kind === k.kind ? 'var(--color-accent-700)' : 'var(--color-neutral-100)',
+        fg: st.nd.kind === k.kind ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: st.nd.kind === k.kind ? 'var(--color-accent-700)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.setND('kind', k.kind),
+      })),
+      showGear: st.method === '滴滤' && st.storeId === 'self',
+      gearOpts: st.devices.filter(d => d.brew).map(d => ({
+        name: d.name,
+        bg: st.gear === d.name ? 'var(--color-accent)' : 'var(--color-neutral-100)', fg: st.gear === d.name ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: st.gear === d.name ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.setState({ gear: d.name }),
+      })),
+      grinderOpts: st.devices.filter(d => d.grinder).map(d => ({
+        name: d.name,
+        bg: st.grinder === d.name ? 'var(--color-accent)' : 'var(--color-neutral-100)', fg: st.grinder === d.name ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: st.grinder === d.name ? 'var(--color-accent)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.pickGrinder(d.name),
+      })),
+      clearAllFields: this.clearAllFields,
+      showGrindDial: !!gspecUI && st.method === '滴滤' && st.storeId === 'self',
+      grindDisplay: grindVal == null ? '—' : grindNum({ grind: grindVal, gunit: gspecUI.unit }),
+      grindUnit: gspecUI ? gspecUI.unit : '',
+      grindColor: grindVal == null ? 'var(--color-neutral-400)' : 'var(--color-text)',
+      grindSub: gspecUI ? (st.grinder || '') + '　' + gspecUI.min + '–' + gspecUI.max + gspecUI.unit + '　每档 ' + gspecUI.step + gspecUI.unit : '',
+      grindRecents, grindHasRecents: grindRecents.length > 0,
+      grindPct: grindPct + '%',
+      grindSliderMin: gspecUI ? gspecUI.min : 0,
+      grindSliderMax: gspecUI ? gspecUI.max : 100,
+      grindSliderStep: gspecUI ? gspecUI.step : 1,
+      grindSliderVal: grindVal == null ? (gspecUI ? gspecUI.def : 0) : grindVal,
+      grindSlide: (e) => {
+        const v = parseFloat(e.target.value);
+        this.setState(s => ({ vals: { ...s.vals, [s.method]: { ...s.vals[s.method], grind: v } } }));
+      },
+      grindDec: () => this.bump('grind', -1),
+      grindInc: () => this.bump('grind', 1),
+      grindClear: () => this.clearField('grind'),
+      storeList: Object.keys(BRANDS).map(id => ({
+        name: BRANDS[id].name, area: BRANDS[id].self ? '自己做的' : '外面喝的',
+        count: recs.filter(r => r.s === id).length, open: () => this.nav('storeDetail', id),
+      })).sort((a, b) => b.count - a.count),
+      prefs: [{ name: '单位', value: '克 / °C' }, { name: '导出 CSV', value: '' }],
+      tabs: tabDefs.map(t => ({ label: t.label, color: st.tab === t.key && st.stack.length === 0 ? 'var(--color-accent-700)' : 'var(--color-neutral-500)', svg: icon(t.d), icon: t.key, pick: () => this.setTab(t.key) })),
+      openNew: () => {
+        const n = new Date();
+        this.setState({ dayOff: 0, hh: n.getHours(), mm: n.getMinutes() });
+        this.nav('new');
+      },
+      timeSheet: st.timeSheet,
+      openTimeSheet: () => this.setState({ timeSheet: true }),
+      closeTimeSheet: () => this.setState({ timeSheet: false }),
+      dateCol: Array.from({ length: 60 }, (_, o) => {
+        const d = dayFrom(o), on = st.dayOff === o;
+        return {
+          label: o === 0 ? '今天' : o === 1 ? '昨天' : (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日 ' + WD[d.getDay()],
+          color: on ? 'var(--color-text)' : 'var(--color-neutral-600)',
+          weight: on ? '700' : '500',
+          bg: on ? 'var(--color-accent-100)' : 'transparent',
+          pick: () => this.setState({ dayOff: o }),
+        };
+      }),
+      hourCol: Array.from({ length: 24 }, (_, h) => ({
+        label: String(h).padStart(2, '0'),
+        color: st.hh === h ? 'var(--color-text)' : 'var(--color-neutral-600)',
+        weight: st.hh === h ? '700' : '500',
+        bg: st.hh === h ? 'var(--color-accent-100)' : 'transparent',
+        pick: () => this.setState({ hh: h }),
+      })),
+      minCol: Array.from({ length: 12 }, (_, i) => {
+        const m = i * 5;
+        return {
+          label: String(m).padStart(2, '0'),
+          color: st.mm === m ? 'var(--color-text)' : 'var(--color-neutral-600)',
+          weight: st.mm === m ? '700' : '500',
+          bg: st.mm === m ? 'var(--color-accent-100)' : 'transparent',
+          pick: () => this.setState({ mm: m }),
+        };
+      }),
+      timeLabel: String(st.hh).padStart(2, '0') + ':' + String(st.mm).padStart(2, '0'),
+      dateLabelFull: (() => {
+        const d = dayFrom(st.dayOff);
+        return (d.getMonth() + 1) + ' 月 ' + d.getDate() + ' 日 · ' + WD[d.getDay()];
+      })(),
+      dateRelative: st.dayOff === 0 ? '今天' : st.dayOff === 1 ? '昨天' : st.dayOff + ' 天前',
+      atToday: st.dayOff === 0, notToday: st.dayOff !== 0,
+      dayBack: () => this.setState(s => ({ dayOff: s.dayOff + 1 })),
+      dayFwd: () => this.setState(s => ({ dayOff: Math.max(0, s.dayOff - 1) })),
+      backToToday: () => { const n = new Date(); this.setState({ dayOff: 0, hh: n.getHours(), mm: Math.round(n.getMinutes() / 5) % 12 * 5 }); },
+      hourDec: () => this.setState(s => ({ hh: (s.hh + 23) % 24 })),
+      hourInc: () => this.setState(s => ({ hh: (s.hh + 1) % 24 })),
+      minDec: () => this.setState(s => ({ mm: (s.mm + 55) % 60 })),
+      minInc: () => this.setState(s => ({ mm: (s.mm + 5) % 60 })), openStats: () => this.nav('stats'), back: this.back, save: this.save,
+      openSheet: () => this.setState({ sheet: true }), closeSheet: () => this.setState({ sheet: false }),
+      showPresets: this.props.quickPresets !== false && st.storeId === 'self', presets,
+      methodOpts: METHODS.map((n, i) => ({
+        name: n, span: i === METHODS.length - 1 ? 'span 2' : 'span 1',
+        dot: st.method === n ? 'var(--color-accent-100)' : MC[n],
+        bg: st.method === n ? MC[n] : 'var(--color-neutral-100)', fg: st.method === n ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: st.method === n ? MC[n] : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.pickMethod(n),
+      })),
+      tempOpts: [{ k: false, label: '热' }, { k: true, label: '冰' }].map(o => ({ label: o.label, ...seg(st.ice === o.k), pick: () => this.setState({ ice: o.k }) })),
+      pickedBean: { name: beanName(pb), sub: beanSub(pb), swatch: pb.swatch, ink: inkFor(pb.swatch), initial: beanName(pb).slice(0, 1) },
+      fields, ratioLabel: ratio.label, ratioValue: ratio.value,
+      stars: [1, 2, 3, 4, 5].map(n => ({ glyph: n <= st.rating ? '★' : '☆', color: n <= st.rating ? 'var(--color-accent)' : 'var(--color-neutral-300)', pick: () => this.setState({ rating: n }) })),
+      isOutside: st.storeId !== 'self',
+      sourceOpts: [{ k: 'out', label: '门店' }, { k: 'self', label: '自制' }].map(o => ({
+        label: o.label, ...seg(o.k === 'self' ? st.storeId === 'self' : st.storeId !== 'self'),
+        pick: () => this.pickSource(o.k),
+      })),
+      storeOpts: Object.keys(BRANDS).filter(id => !BRANDS[id].self).map(id => ({
+        name: BRANDS[id].name,
+        bg: st.storeId === id ? 'var(--color-accent-2-700)' : 'var(--color-neutral-100)', fg: st.storeId === id ? 'var(--color-accent-2-100)' : 'var(--color-text)',
+        border: st.storeId === id ? 'var(--color-accent-2-700)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.setState({ storeId: id }),
+      })),
+      note: st.note, setNote: (e) => this.setState({ note: e.target.value }),
+      beanGroups,
+      openNewBean: () => this.setState(s => ({ sheet: true, nbFrom: 'bean', nb: { ...s.nb, open: true, more: true } })),
+      openNewBeanFromRecord: () => this.setState(s => ({ nbFrom: 'record', nb: { ...s.nb, open: true } })),
+      nbAddLabel: st.nbFrom === 'record' ? '添加并选中' : '添加豆子',
+      sheetTitle: st.nbFrom === 'record' ? '选豆子' : '豆子',
+      ebOpen: st.eb.open, ebClosed: !st.eb.open,
+      ebName: st.eb.name, ebRoast: st.eb.roast,
+      ebSetName: (e) => this.setEB('name', e.target.value),
+      ebCancel: () => this.setState({ eb: { open: false } }),
+      ebSave: this.saveEdit,
+      ebPreviewName: st.eb.open ? beanName({ name: st.eb.name && st.eb.name.trim(), origin: st.eb.origin, farm: st.eb.farm, region: st.eb.region }) : '',
+      ebFields: [
+        { label: '产地', k: 'origin', ph: '云南 / 埃塞俄比亚' },
+        { label: '产区', k: 'region', ph: '保山 / 古吉' },
+        { label: '庄园 / 合作社', k: 'farm', ph: '天皓庄园' },
+        { label: '品种', k: 'variety', ph: '不知道就留空' },
+        { label: '产季', k: 'season', ph: '2025-2026' },
+        { label: '烘焙商', k: 'roaster', ph: '自家烘焙 / 治光咖啡' },
+        { label: '烘焙色值', k: 'agtron', ph: 'Agtron 值，如 68' },
+        { label: '烘焙日期', k: 'roastDate', ph: '8/20' },
+        { label: '风味', k: 'flavor', ph: '茉莉、白桃、柠檬茶' },
+      ].map(f => ({ label: f.label, ph: f.ph, value: st.eb[f.k], set: (e) => this.setEB(f.k, e.target.value) })),
+      ebOwnerOpts: [{ k: true, label: '我的豆子' }, { k: false, label: '门店豆子' }].map(o => ({
+        label: o.label, ...seg(st.eb.mine === o.k), pick: () => this.setEB('mine', o.k),
+      })),
+      ebProcessOpts: PROCESSES.concat(['自己填 ✎']).map(p => {
+        const custom = p === '自己填 ✎';
+        const on = custom ? st.eb.customProcess : (!st.eb.customProcess && st.eb.process === p);
+        return {
+          name: p,
+          bg: on ? 'var(--color-accent-2-700)' : 'var(--color-neutral-100)',
+          fg: on ? 'var(--color-accent-2-100)' : (custom ? 'var(--color-accent-700)' : 'var(--color-text)'),
+          border: on ? 'var(--color-accent-2-700)' : (custom ? 'color-mix(in srgb, var(--color-accent) 52%, transparent)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)'),
+          pick: () => this.setState(s => ({ eb: { ...s.eb, customProcess: custom, process: custom ? (PROCESSES.includes(s.eb.process) ? '' : s.eb.process) : p } })),
+        };
+      }),
+      ebCustomProcess: !!st.eb.customProcess, ebProcessText: st.eb.process,
+      ebSetProcess: (e) => this.setEB('process', e.target.value),
+      ebRoastOpts: ROASTS.map(p => ({
+        name: p,
+        bg: st.eb.roast === p ? 'var(--color-accent-700)' : 'var(--color-neutral-100)', fg: st.eb.roast === p ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: st.eb.roast === p ? 'var(--color-accent-700)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.setEB('roast', p),
+      })),
+      ebSwatchOpts: SWATCHES.map(c => ({
+        c, ring: st.eb.swatch === c ? '2px solid var(--color-text)' : '2px solid transparent',
+        pick: () => this.setEB('swatch', c),
+      })),
+      ebHex: st.hexEb, ebSetHex: (e) => this.applyHex('eb', e.target.value),
+      ebHexPreview: normHex(st.hexEb) || st.eb.swatch,
+      nbOpen: st.nb.open, nbClosed: !st.nb.open, nsClosed: !st.ns.open,
+      nbMore: st.nb.more, nbMoreClosed: !st.nb.more,
+      nbToggleMore: () => this.setNB('more', !st.nb.more),
+      nbName: st.nb.name,
+      nbSetName: (e) => this.setNB('name', e.target.value),
+      nbNamePlaceholder: (() => {
+        const auto = beanName({ ...this.nbDraft(), name: undefined });
+        return auto === '未命名豆子' ? '名称（或在下面填产地/庄园）' : '留空则用「' + auto + '」';
+      })(),
+      nbPreviewName: beanName(this.nbDraft()),
+      nbPreviewSub: beanSub(this.nbDraft()),
+      nbDetailFields: [
+        { label: '产地', k: 'origin', ph: '云南 / 埃塞俄比亚' },
+        { label: '产区', k: 'region', ph: '保山 / 古吉' },
+        { label: '庄园 / 合作社', k: 'farm', ph: '天皓庄园' },
+        { label: '品种', k: 'variety', ph: '不知道就留空' },
+        { label: '产季', k: 'season', ph: '2025-2026' },
+        { label: '烘焙商', k: 'roaster', ph: '自家烘焙 / 治光咖啡' },
+        { label: '烘焙色值', k: 'agtron', ph: 'Agtron 值，如 68' },
+        { label: '烘焙日期', k: 'roastDate', ph: '8/20' },
+        { label: '风味', k: 'flavor', ph: '茉莉、白桃、柠檬茶' },
+      ].map(f => ({ label: f.label, ph: f.ph, value: st.nb[f.k], set: (e) => this.setNB(f.k, e.target.value) })),
+      nbCancel: () => this.setNB('open', false),
+      nbAdd: this.addBean,
+      nbCanAdd: !!(st.nb.name.trim() || st.nb.origin.trim() || st.nb.farm.trim()),
+      nbAddBg: (st.nb.name.trim() || st.nb.origin.trim() || st.nb.farm.trim()) ? 'var(--color-accent)' : 'var(--color-neutral-300)',
+      nbAddFg: (st.nb.name.trim() || st.nb.origin.trim() || st.nb.farm.trim()) ? 'var(--color-accent-100)' : 'var(--color-neutral-500)',
+      nbProcessOpts: PROCESSES.map(p => {
+        const on = !st.nb.customProcess && st.nb.process === p;
+        return {
+          name: p,
+          bg: on ? 'var(--color-accent-2-700)' : 'var(--color-neutral-100)', fg: on ? 'var(--color-accent-2-100)' : 'var(--color-text)',
+          border: on ? 'var(--color-accent-2-700)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+          pick: () => this.setState(s => ({ nb: { ...s.nb, process: p, customProcess: false } })),
+        };
+      }).concat([(() => {
+        const on = st.nb.customProcess;
+        return {
+          name: '自己填 ✎',
+          bg: on ? 'var(--color-accent-2-700)' : 'var(--color-neutral-100)', fg: on ? 'var(--color-accent-2-100)' : 'var(--color-accent-700)',
+          border: on ? 'var(--color-accent-2-700)' : 'color-mix(in srgb, var(--color-accent) 52%, transparent)',
+          pick: () => this.setState(s => ({ nb: { ...s.nb, customProcess: true, process: PROCESSES.includes(s.nb.process) ? '' : s.nb.process } })),
+        };
+      })()]),
+      nbCustomProcess: st.nb.customProcess, nbProcessText: st.nb.process,
+      nbSetProcess: (e) => this.setNB('process', e.target.value),
+      nbSwatchOpts: SWATCHES.map(c => ({
+        c, ring: st.nb.swatch === c ? '2px solid var(--color-text)' : '2px solid transparent',
+        pick: () => this.setNB('swatch', c),
+      })),
+      nbSwatch: st.nb.swatch,
+      nbHex: st.hexNb, nbSetHex: (e) => this.applyHex('nb', e.target.value),
+      nbHexPreview: normHex(st.hexNb) || st.nb.swatch,
+      nbRoastOpts: ROASTS.map(p => ({
+        name: p,
+        bg: st.nb.roast === p ? 'var(--color-accent-700)' : 'var(--color-neutral-100)', fg: st.nb.roast === p ? 'var(--color-accent-100)' : 'var(--color-text)',
+        border: st.nb.roast === p ? 'var(--color-accent-700)' : 'color-mix(in srgb, var(--color-text) 10%, transparent)',
+        pick: () => this.setNB('roast', p),
+      })),
+      nbOwnerOpts: [{ k: true, label: '我的豆子' }, { k: false, label: '门店豆子' }].map(o => ({
+        label: o.label, ...seg(st.nb.mine === o.k), pick: () => this.setNB('mine', o.k),
+      })),
+      nsOpen: st.ns.open, nsName: st.ns.name,
+      nsOpenForm: () => this.setNS('open', true),
+      nsSetName: (e) => this.setNS('name', e.target.value),
+      nsCancel: () => this.setNS('open', false),
+      nsAdd: this.addStore,
+      nsAddBg: st.ns.name.trim() ? 'var(--color-accent-2-700)' : 'var(--color-neutral-300)',
+      nsAddFg: st.ns.name.trim() ? 'var(--color-accent-2-100)' : 'var(--color-neutral-500)',
+    };
+  }
+}
+</script>
+</body>
+</html>

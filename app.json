@@ -1,0 +1,46 @@
+{
+  "expo": {
+    "name": "咖啡记录",
+    "slug": "coffee-log",
+    "scheme": "coffeelog",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f5ead8"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.dp.coffeelog",
+      "infoPlist": {
+        "NSCameraUsageDescription": "拍一张这杯咖啡的照片，存进记录里。",
+        "NSPhotoLibraryUsageDescription": "从相册里挑一张咖啡照片，存进记录里。"
+      }
+    },
+    "android": {
+      "package": "com.dp.coffeelog",
+      "adaptiveIcon": {
+        "backgroundColor": "#f5ead8",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "从相册里挑一张咖啡照片，存进记录里。",
+          "cameraPermission": "拍一张这杯咖啡的照片，存进记录里。"
+        }
+      ]
+    ]
+  }
+}
