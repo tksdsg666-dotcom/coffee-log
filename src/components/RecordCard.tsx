@@ -2,12 +2,13 @@
  * One timeline card.
  *
  * SPEC § 时间线 fixes the internal order: bean name + subtitle / stars / time /
- * ⋯ → tag row → photo thumbnail → parameter string → note. Child taps that
- * navigate elsewhere (bean, brand, ⋯) must not also open the record, hence the
+ * delete → tag row → photo thumbnail → parameter string → note. Child taps that
+ * navigate elsewhere (bean, brand, delete) must not also open the record, hence the
  * separate pressables rather than one wrapper with bubbling.
  */
 import { Image } from 'react-native';
 import { Pressable, StyleSheet, View } from 'react-native';
+import { Trash2 } from 'lucide-react-native';
 
 import type { Bean, Brand, CoffeeRecord } from '@/db/schema';
 import { beanInitial, beanName, beanSub, inkFor, swatchColor } from '@/domain/bean';
@@ -25,7 +26,7 @@ export function RecordCard({
   onPress,
   onPressBean,
   onPressBrand,
-  onPressMenu,
+  onPressDelete,
 }: {
   record: CoffeeRecord;
   bean: Bean | undefined;
@@ -36,7 +37,9 @@ export function RecordCard({
   /** Omitted while 豆子详情 / 品牌详情 do not exist — the label then renders inert. */
   onPressBean?: (beanId: string) => void;
   onPressBrand?: (brandId: string) => void;
-  onPressMenu: () => void;
+  /** Deleting is the only action on a card, so it gets a plain icon rather
+   *  than an overflow menu — a ⋯ promises choices that are not there. */
+  onPressDelete: () => void;
 }) {
   const method = isMethod(record.method) ? record.method : null;
   const base = record.base && isSpecialBase(record.base) ? record.base : null;
@@ -64,10 +67,8 @@ export function RecordCard({
           <Num size={13} c={color.neutral600}>
             {record.time}
           </Num>
-          <Tap onPress={onPressMenu} style={styles.menuBtn}>
-            <Txt size={18} c={color.neutral500}>
-              ⋯
-            </Txt>
+          <Tap onPress={onPressDelete} style={styles.deleteBtn}>
+            <Trash2 color={color.neutral500} size={16} strokeWidth={2.75} />
           </Tap>
         </View>
       </View>
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  menuBtn: {
+  deleteBtn: {
     minWidth: 28,
     minHeight: 28,
     alignItems: 'center',

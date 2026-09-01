@@ -94,7 +94,7 @@ export default function TimelineScreen() {
               highlight={saved === item.id}
               onPress={() => router.push(routes.recordDetail(item.id))}
               onPressBean={(beanId) => router.push(routes.beanDetail(beanId))}
-              onPressMenu={() => confirmDelete(item)}
+              onPressDelete={() => confirmDelete(item)}
             />
           </View>
         )}
