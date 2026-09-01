@@ -13,7 +13,6 @@ import { Caprasimo_400Regular } from '@expo-google-fonts/caprasimo/400Regular';
 import { Figtree_400Regular } from '@expo-google-fonts/figtree/400Regular';
 import { Figtree_600SemiBold } from '@expo-google-fonts/figtree/600SemiBold';
 import { Figtree_700Bold } from '@expo-google-fonts/figtree/700Bold';
-import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -24,8 +23,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { bootstrap } from '@/db/bootstrap';
-import { db } from '@/db/client';
-import migrations from '@/db/migrations/migrations';
+import { runMigrations } from '@/db/migrate';
 import { exportBackup } from '@/lib/backup';
 import { color } from '@/theme';
 
@@ -40,18 +38,26 @@ export default function RootLayout() {
     Figtree_600SemiBold,
     Figtree_700Bold,
   });
-  const { success: migrated, error: migrationError } = useMigrations(db, migrations);
   const [ready, setReady] = useState(false);
   const [bootError, setBootError] = useState<Error | null>(null);
 
+  // Migrations then the reserved 自制 brand, in that order, once.
   useEffect(() => {
-    if (!migrated) return;
-    bootstrap()
-      .then(() => setReady(true))
-      .catch((e: unknown) => setBootError(e instanceof Error ? e : new Error(String(e))));
-  }, [migrated]);
+    let cancelled = false;
+    runMigrations()
+      .then(bootstrap)
+      .then(() => {
+        if (!cancelled) setReady(true);
+      })
+      .catch((e: unknown) => {
+        if (!cancelled) setBootError(e instanceof Error ? e : new Error(String(e)));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const fatal = migrationError ?? bootError ?? fontError;
+  const fatal = bootError ?? fontError;
   const booted = (fontsLoaded || Boolean(fontError)) && ready;
 
   useEffect(() => {

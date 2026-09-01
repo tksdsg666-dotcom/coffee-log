@@ -45,3 +45,6 @@ yarn-error.*
 
 # dev server log
 .devserver.log
+
+# local web build for testing
+.web/
