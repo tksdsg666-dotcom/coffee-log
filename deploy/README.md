@@ -58,8 +58,12 @@ npx expo export --platform web
 
 ```
 cd C:\Users\DP\Desktop\APP
-scp -r dist root@47.237.114.226:/tmp/coffee-dist
+scp -O -r dist root@47.237.114.226:/tmp/coffee-dist
 ```
+
+> `-O` 是必须的：OpenSSH 9 之后 scp 默认走 SFTP，在这台机器上会直接
+> `Connection closed`。另外 22 端口一直有人爆破，sshd 的 MaxStartups 会丢弃
+> 未认证连接，连不上时多试一两次。
 
 服务器上换过去：
 
@@ -73,6 +77,13 @@ curl -sI -H 'Host: coffee.thinker.win' http://127.0.0.1:8080/ | head -1
 > nginx 读不了会 403。`cp` 让新文件继承目标目录的标签。
 
 发完在 Cloudflare 清一次缓存（Caching → Purge Everything），或者等边缘缓存过期。
+
+## Cloudflare 的浏览器缓存 TTL
+
+zone 的「浏览器缓存 TTL」如果不是「尊重现有标头」，Cloudflare 会用**较大**的那个值
+覆盖源站的 `Cache-Control`，`sw.js` 的 `no-cache` 就会变成 `max-age=14400`。
+现代浏览器更新 service worker 主脚本时本来就绕过 HTTP 缓存，所以影响不大，
+但设成「尊重现有标头」更省心（缓存 → 配置 → 浏览器缓存 TTL）。
 
 ## 验收
 
