@@ -1,55 +1,82 @@
 # 部署
 
-`coffee.thinker.win` → 阿里云新加坡 `47.237.114.226`，Cloudflare 代理。
+`coffee.thinker.win` → 阿里云新加坡 `47.237.114.226`，Cloudflare 橙云代理，加密模式「灵活」。
+
+**这台机器上还跑着 x-ui**：`xray` 占着 80，x-ui 面板占着 2096 和 8888。
+所以 nginx 听 **8080**，由一条 Cloudflare Origin Rule 把这个域名的回源端口改过去。
+80 和 xray 一律不碰。
 
 ## 一次性：服务器
 
-以 root 登录（阿里云控制台的「远程连接」也行）：
-
 ```bash
 dnf install -y nginx
-systemctl enable --now nginx
+
+# 默认 server 也听 80，会和 xray 抢端口，先挪走
+sed -i -E 's/^([[:space:]]*)listen([[:space:]]+)(\[::\]:)?80;/\1listen\2\38080;/' /etc/nginx/nginx.conf
+grep -n 'listen' /etc/nginx/nginx.conf   # 38/39 应该是 8080
+
 mkdir -p /var/www/coffee
 ```
 
-把 `deploy/nginx.conf` 放到 `/etc/nginx/conf.d/coffee.conf`，然后：
+把 `deploy/nginx.conf` 放成 `/etc/nginx/conf.d/coffee.conf`，然后：
 
 ```bash
-nginx -t && systemctl reload nginx
+nginx -t && systemctl enable --now nginx
+ss -ltnp | grep -E ':(80|8080)\s'        # 80 是 xray，8080 是 nginx
 ```
 
-**阿里云安全组要放行 80 和 443 入方向**，这一步在控制台里做，不放行的话 Cloudflare 连不上源站，页面会是 522。
+## 一次性：阿里云安全组
+
+入方向放行 **TCP 8080**（来源 `0.0.0.0/0`）。不放行的话 Cloudflare 连不上，页面是 522。
+
+80 和 443 本来就开着，不用动。
 
 ## 一次性：Cloudflare
 
 - DNS：`A` / `coffee` / `47.237.114.226` / 已代理（橙云）
-- SSL/TLS 加密模式：**灵活 (Flexible)** —— 源站只有 80
-- 「始终使用 HTTPS」打开。PWA 必须是 HTTPS，Safari 才肯装
+- **Rules → Origin Rules → 创建规则**
+  - 表达式：主机名（Hostname）等于 `coffee.thinker.win`
+  - 源 → 目标端口（Destination port）→ 重写到 `8080`
 
-> 之后想把 Cloudflare 到源站这一段也加密：在 Cloudflare 生成一张 Origin
-> Certificate，证书和私钥放到服务器上，nginx 加 `listen 443 ssl`，加密模式
-> 改成「完全（严格）」。不急，但值得做。
+> 别开整个 zone 的「始终使用 HTTPS」——它对 x-ui 那个域名同样生效。
+> 要强制 HTTPS 就加一条只匹配 `coffee.thinker.win` 的 Redirect Rule。
+
+> Cloudflare 到源站这一段目前是明文。想加密的话：Cloudflare 生成一张
+> Origin Certificate，nginx 换成 `listen 8443 ssl`，Origin Rule 改成 8443，
+> 加密模式改「完全（严格）」。但加密模式是 zone 级的，改之前要确认
+> x-ui 那个域名也能接受。
 
 ## 每次发版
 
-本机：
+本机出包：
 
 ```bash
 npx expo export --platform web
 ```
 
-然后把 `dist/` 的内容推上去（Windows 自带 scp）：
+传上去（Windows 自带 scp，在 PowerShell 里跑）：
 
-```bash
-scp -r dist/* root@47.237.114.226:/var/www/coffee/
+```
+cd C:\Users\DP\Desktop\APP
+scp -r dist root@47.237.114.226:/tmp/coffee-dist
 ```
 
-发完之后 Cloudflare 那边清一次缓存（Caching → Purge Everything），
-或者等边缘缓存自己过期。
+服务器上换过去：
 
-## 验一下
+```bash
+rm -rf /var/www/coffee/* && cp -r /tmp/coffee-dist/. /var/www/coffee/ && rm -rf /tmp/coffee-dist
+restorecon -R /var/www/coffee 2>/dev/null
+curl -sI -H 'Host: coffee.thinker.win' http://127.0.0.1:8080/ | head -1
+```
 
-- `https://coffee.thinker.win` 能打开，右上角没有证书警告
-- 直接访问 `https://coffee.thinker.win/me`（不是点进去的）也能出页面 —— `try_files` 生效了
-- iPhone Safari → 分享 → 添加到主屏幕 → 打开是整屏、没有地址栏
-- 开飞行模式再打开一次，应该照常进得去
+> 用 `cp -r` 不要用 `mv`：从 `/tmp` 搬过去会把 SELinux 的 `tmp_t` 标签一起带上，
+> nginx 读不了会 403。`cp` 让新文件继承目标目录的标签。
+
+发完在 Cloudflare 清一次缓存（Caching → Purge Everything），或者等边缘缓存过期。
+
+## 验收
+
+- `curl -s https://coffee.thinker.win/` 有内容，不是 404 / 522
+- 直接访问 `https://coffee.thinker.win/me`（不是点进去的）也能出页面 —— `try_files` 生效
+- iPhone Safari 打开 → 分享 → 添加到主屏幕 → 打开是整屏、没有地址栏
+- 开飞行模式再打开一次，照常进得去 —— service worker 生效
