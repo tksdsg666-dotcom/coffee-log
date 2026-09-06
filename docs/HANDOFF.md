@@ -108,7 +108,9 @@
 **外壳**在 `public/`，整个目录原样拷进 `dist/`：
 
 - `index.html` —— Expo 优先用它，没有才用自带模板。占位符只替换第一次出现的位置，别在上面的注释里再写一遍
-- `manifest.json` 和 `icons/`（从 `assets/icon.png` 和 adaptive-icon 前景图生成）
+- `manifest.json` 和 `icons/` —— 全部由 `python scripts/make-icons.py` 从
+  `assets/icon-source.png` 生成，换图只需替换那一张再跑一次；maskable 那两张
+  会按 80% 安全圈单独缩放，别手动改
 - `sw.js` —— 运行时缓存，不用构建期清单：导航请求网络优先、回落到缓存的 index.html；`_expo/` 和 `assets/` 里带哈希的文件缓存优先。改它之前先看 `src/lib/sw.test.ts`
 - `setupPwa()` 注册 worker，并申请 `navigator.storage.persist()`
 

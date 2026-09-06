@@ -11,7 +11,7 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f5ead8"
+      "backgroundColor": "#d1c1a9"
     },
     "ios": {
       "supportsTablet": false,
@@ -24,7 +24,7 @@
     "android": {
       "package": "com.dp.coffeelog",
       "adaptiveIcon": {
-        "backgroundColor": "#f5ead8",
+        "backgroundColor": "#d1c1a9",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
