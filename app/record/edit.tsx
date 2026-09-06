@@ -10,7 +10,7 @@
  */
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { BeanSheet, type BeanDraft } from '@/components/BeanSheet';
@@ -55,6 +55,7 @@ import {
   usesGear,
   usesGrindCard,
 } from '@/domain/methods';
+import { showAlert } from '@/lib/alert';
 import { color, METHOD_COLOR, MIN_TAP, radius, shadowSm } from '@/theme';
 import { eq } from 'drizzle-orm';
 
@@ -372,7 +373,7 @@ export default function RecordForm() {
     // writing it as 自制.
     const targetBrand = isSelf ? 'self' : brandId;
     if (targetBrand == null) {
-      Alert.alert('先选一个品牌', '门店记录得说明是在哪儿喝的。');
+      showAlert('先选一个品牌', '门店记录得说明是在哪儿喝的。');
       return;
     }
 
@@ -427,7 +428,7 @@ export default function RecordForm() {
         router.replace({ pathname: '/', params: { saved: newId } });
       }
     } catch (e) {
-      Alert.alert('没能保存', e instanceof Error ? e.message : String(e));
+      showAlert('没能保存', e instanceof Error ? e.message : String(e));
       setSaving(false);
     }
   };

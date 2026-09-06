@@ -52,6 +52,10 @@ export const color = {
   accent2_800: '#3d472b',
   accent2_900: '#272e1b',
 
+  /** Destructive actions. Warm enough to sit in this palette rather than the
+   *  system red, dark enough to clear 4.5:1 on the card background. */
+  danger: '#a3372a',
+
   /** color-mix(in srgb, var(--color-bg) 94%, transparent) — the frosted bar tint */
   glass: 'rgba(245, 234, 216, 0.94)',
   /** pressed-state wash over a card */

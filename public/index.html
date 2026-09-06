@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+  The HTML shell for the web build.
+
+  Expo's exporter looks for `public/index.html` before falling back on its own
+  template, substitutes the lang and title placeholders from app.json, and
+  appends the bundle script tag. Everything below the reset is what turns this
+  from a web page into an installable app: the manifest, and the Apple flags
+  iOS still reads instead of the manifest.
+
+  Do not write either placeholder token anywhere above the tag that needs it —
+  the exporter replaces only the first occurrence of each, so a mention in a
+  comment silently eats the substitution.
+
+  `app/+html.tsx` would have been the other route, but that one is only used
+  when web output is "static"; this project exports a single-page app.
+-->
+<html lang="%LANG_ISO_CODE%">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <!--
+      viewport-fit=cover puts the page under the status bar, so the insets
+      react-native-safe-area-context reads are the real ones. maximum-scale
+      stops a tap on a number field from zooming the whole app in standalone
+      mode, where there is no browser chrome to zoom back out with.
+    -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no, viewport-fit=cover"
+    />
+    <title>%WEB_TITLE%</title>
+
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#f5ead8" />
+    <meta name="color-scheme" content="light" />
+    <meta name="description" content="一杯一杯记下来。" />
+
+    <!-- iOS reads these, not the manifest, when adding to the home screen. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="咖啡记录" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.png" />
+
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      /* These styles make the body full-height */
+      html,
+      body {
+        height: 100%;
+      }
+      /* These styles disable body scrolling if you are using <ScrollView> */
+      body {
+        overflow: hidden;
+      }
+      /* These styles make the root element full-height */
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+    <style id="coffee-log-shell">
+      html,
+      body,
+      #root {
+        /* color.bg. Painted here as well so the gap before the bundle runs is
+           the app's colour rather than white. */
+        background-color: #f5ead8;
+      }
+      body {
+        /* No rubber-band past the top of the timeline: it reveals the page
+           behind the app and immediately reads as a web page. */
+        overscroll-behavior-y: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      * {
+        -webkit-touch-callout: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>这个应用需要 JavaScript。</noscript>
+    <!-- The root element for your Expo app. -->
+    <div id="root"></div>
+  </body>
+</html>

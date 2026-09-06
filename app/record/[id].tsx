@@ -7,7 +7,7 @@
  */
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
 
 import { NavAction, NavBar } from '@/components/Screen';
 import { Divider, GroupLabel, Num, PillButton, StarText, Tap, Txt } from '@/components/ui';
@@ -18,7 +18,8 @@ import { beanInitial, beanName, beanSub, inkFor, swatchColor } from '@/domain/be
 import { grindText } from '@/domain/grind';
 import { monthDay, paramDisplay, ratioOf, WEEKDAYS } from '@/domain/format';
 import { fieldsFor, isMethod, isSpecialBase } from '@/domain/methods';
-import { photoUri } from '@/lib/photos';
+import { showAlert } from '@/lib/alert';
+import { usePhotoUri } from '@/lib/usePhotoUri';
 import { routes } from '@/lib/routes';
 import { color, METHOD_COLOR, METHOD_INK, METHOD_TINT, radius, shadowSm } from '@/theme';
 
@@ -39,6 +40,9 @@ export default function RecordDetail() {
     () => (record ? (brands ?? []).find((b) => b.id === record.brandId) : undefined),
     [brands, record],
   );
+  // Above the early return below: it is a hook, and the record can be missing
+  // for the frame between deleting and the screen popping.
+  const uri = usePhotoUri(record?.photo);
 
   // The live query re-runs after a delete, so this also covers the moment
   // between deleting and the screen popping.
@@ -53,7 +57,6 @@ export default function RecordDetail() {
   const method = isMethod(record.method) ? record.method : null;
   const base = record.base && isSpecialBase(record.base) ? record.base : null;
   const ratio = method ? ratioOf({ ...record, base, method }) : null;
-  const uri = photoUri(record.photo);
 
   /** SPEC § 记录详情: the parameter rows, then the ratio as a final row. */
   const rows: { k: string; v: string }[] = [];
@@ -79,7 +82,7 @@ export default function RecordDetail() {
   const dateLine = `${monthDay(record.mon, record.day)} · ${WEEKDAYS[when.getDay()]} · ${record.time}`;
 
   const confirmDelete = () => {
-    Alert.alert('删除这条记录？', '删掉就找不回来了。', [
+    showAlert('删除这条记录？', '删掉就找不回来了。', [
       { text: '取消', style: 'cancel' },
       {
         text: '删除',

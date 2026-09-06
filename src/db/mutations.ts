@@ -43,7 +43,7 @@ export const deleteRecord = async (recordId: string): Promise<void> => {
     .where(eq(records.id, recordId))
     .limit(1);
   await db.delete(records).where(eq(records.id, recordId));
-  deletePhoto(row?.photo);
+  await deletePhoto(row?.photo);
   notifyChanged();
 };
 
@@ -76,7 +76,7 @@ export const deleteBeanCascade = async (beanId: string): Promise<number> => {
 
   await db.delete(records).where(eq(records.beanId, beanId));
   await db.delete(beans).where(eq(beans.id, beanId));
-  for (const r of doomed) deletePhoto(r.photo);
+  for (const r of doomed) await deletePhoto(r.photo);
   notifyChanged();
   return doomed.length;
 };

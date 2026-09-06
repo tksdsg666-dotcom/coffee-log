@@ -8,9 +8,11 @@
  */
 import * as ImagePicker from 'expo-image-picker';
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Image, StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
-import { deletePhoto, photoUri, savePhoto } from '@/lib/photos';
+import { showAlert } from '@/lib/alert';
+import { deletePhoto, savePhoto } from '@/lib/photos';
+import { usePhotoUri } from '@/lib/usePhotoUri';
 import { color, MIN_TAP, radius } from '@/theme';
 import { Sheet } from './Sheet';
 import { NavAction } from './Screen';
@@ -26,7 +28,7 @@ export function PhotoField({
 }) {
   const [sheet, setSheet] = useState(false);
   const [busy, setBusy] = useState(false);
-  const uri = photoUri(filename);
+  const uri = usePhotoUri(filename);
 
   /**
    * Which picker to open once the action sheet has finished closing.
@@ -85,7 +87,7 @@ export function PhotoField({
           : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
       if (!permission.granted) {
-        Alert.alert(
+        showAlert(
           source === 'camera' ? '没有相机权限' : '没有相册权限',
           '到系统设置里打开权限就能加照片了。',
         );
@@ -106,17 +108,17 @@ export function PhotoField({
 
       const stored = await savePhoto(asset.uri);
       // Replacing an existing photo leaves the old file behind otherwise.
-      if (filename) deletePhoto(filename);
+      if (filename) void deletePhoto(filename);
       onChange(stored);
     } catch (e) {
-      Alert.alert('照片没能存下来', e instanceof Error ? e.message : String(e));
+      showAlert('照片没能存下来', e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
   };
 
   const remove = () => {
-    if (filename) deletePhoto(filename);
+    if (filename) void deletePhoto(filename);
     onChange(null);
   };
 

@@ -7,14 +7,12 @@
  * by filename, not embedded: base64-ing a month of pictures into one JSON file
  * would push it past what a share sheet will carry.
  */
-import { Directory, File, Paths } from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
-
 import { db } from '@/db/client';
 import { SELF_BRAND_ID } from '@/db/bootstrap';
 import { beans, brands, devices, records, settings } from '@/db/schema';
 import type { Bean, Brand, CoffeeRecord, Device, Setting } from '@/db/schema';
-import { listPhotos } from './photos';
+import { saveBackupFile } from './backupFile';
+import { clearPhotos, listPhotos } from './photos';
 import { readTable } from './tolerantRead.ts';
 import { notifyChanged } from '@/db/live';
 
@@ -71,7 +69,7 @@ export const buildBackup = async ({ rescue = false }: BackupOptions = {}): Promi
   const referenced = new Set(recordRows.map((r) => r.photo).filter((p): p is string => Boolean(p)));
   let onDisk: Set<string>;
   try {
-    onDisk = new Set(listPhotos());
+    onDisk = new Set(await listPhotos());
   } catch {
     onDisk = new Set();
   }
@@ -99,27 +97,17 @@ export const buildBackup = async ({ rescue = false }: BackupOptions = {}): Promi
 };
 
 /**
- * Writes the backup to a cache file and opens the share sheet.
- * Returns the number of records written, or null if sharing is unavailable.
+ * Hands the backup to the user — share sheet on the phone, download or share
+ * in the browser. Returns the number of records written, or null when the
+ * platform had no way to deliver the file.
  */
 export const exportBackup = async (options: BackupOptions = {}): Promise<number | null> => {
   const backup = await buildBackup(options);
   const stamp = backup.exportedAt.slice(0, 10);
-  const dir = new Directory(Paths.cache, 'export');
-  if (!dir.exists) dir.create({ intermediates: true, idempotent: true });
+  const name = `coffee-log-${stamp}${options.rescue ? '-rescue' : ''}.json`;
 
-  const file = new File(dir, `coffee-log-${stamp}${options.rescue ? '-rescue' : ''}.json`);
-  if (file.exists) file.delete();
-  file.create();
-  file.write(JSON.stringify(backup, null, 2));
-
-  if (!(await Sharing.isAvailableAsync())) return null;
-  await Sharing.shareAsync(file.uri, {
-    mimeType: 'application/json',
-    dialogTitle: '导出咖啡记录',
-    UTI: 'public.json',
-  });
-  return backup.counts.records;
+  const handed = await saveBackupFile(name, JSON.stringify(backup, null, 2));
+  return handed ? backup.counts.records : null;
 };
 
 export type ImportResult = {
@@ -163,7 +151,7 @@ export const importBackup = async (json: string): Promise<ImportResult> => {
     records: new Set((await db.select({ id: records.id }).from(records)).map((r) => r.id)),
   };
 
-  const onDisk = new Set(listPhotos());
+  const onDisk = new Set(await listPhotos());
 
   for (const row of parsed.data.brands ?? []) {
     // The reserved 自制 row always exists already.
@@ -227,8 +215,7 @@ export const wipeAll = async (): Promise<void> => {
   await db.delete(brands);
   await db.delete(settings);
 
-  const dir = new Directory(Paths.document, 'photos');
-  if (dir.exists) dir.delete();
+  await clearPhotos();
 
   await db.insert(brands).values({
     id: SELF_BRAND_ID,

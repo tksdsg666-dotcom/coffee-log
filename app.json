@@ -30,6 +30,11 @@
       },
       "predictiveBackGestureEnabled": false
     },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "lang": "zh-Hans"
+    },
     "plugins": [
       "expo-router",
       "expo-font",

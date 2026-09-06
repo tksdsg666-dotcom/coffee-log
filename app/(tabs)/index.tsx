@@ -7,7 +7,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Plus } from 'lucide-react-native';
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, SectionList, StyleSheet, View } from 'react-native';
+import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenTitle } from '@/components/Screen';
@@ -18,6 +18,7 @@ import { useQuery } from '@/db/live';
 import { allBeans, allBrands, allRecords } from '@/db/queries';
 import type { CoffeeRecord } from '@/db/schema';
 import { dayKey, dayLabel, monthDay } from '@/domain/format';
+import { showAlert } from '@/lib/alert';
 import { routes } from '@/lib/routes';
 import { color, radius, shadowLg } from '@/theme';
 
@@ -55,7 +56,7 @@ export default function TimelineScreen() {
   }, [records, now]);
 
   const confirmDelete = (record: CoffeeRecord) => {
-    Alert.alert('删除这条记录？', '删掉就找不回来了。', [
+    showAlert('删除这条记录？', '删掉就找不回来了。', [
       { text: '取消', style: 'cancel' },
       {
         text: '删除',

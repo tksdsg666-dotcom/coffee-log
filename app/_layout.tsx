@@ -22,14 +22,19 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { AlertHost } from '@/components/AlertHost';
 import { bootstrap } from '@/db/bootstrap';
 import { runMigrations } from '@/db/migrate';
 import { exportBackup } from '@/lib/backup';
+import { setupPwa } from '@/lib/pwa';
 import { color } from '@/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Racing an already-hidden splash is harmless.
 });
+
+// Web only: service worker and durable storage. No-op on native.
+setupPwa();
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -87,6 +92,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="record/edit" options={{ presentation: 'modal' }} />
         </Stack>
+        <AlertHost />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

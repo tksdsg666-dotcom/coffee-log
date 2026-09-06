@@ -1,9 +1,9 @@
 # 交接说明
 
-一个纯本地的个人咖啡日志，Expo + React Native，数据在手机的 SQLite 里。
-用户每天在 iPhone 上用 Expo Go 使用，功能完整可用。
+一个纯本地的个人咖啡日志，Expo + React Native，数据存在 SQLite 里，没有后端也没有账号。
+同一份代码出两个东西：iPhone 上用 Expo Go 跑的原生版（现在每天在用），和自托管的网页版 / PWA（`coffee.thinker.win`，要正式用的那个）。
 
-`tsc` 干净，`npm test` 64 项全过，`expo export --platform ios` 打包正常，迁移到 `0002`。
+`tsc` 干净，`npm test` 72 项全过，`expo export` 两个平台都正常，迁移到 `0002`。
 
 [README.md](../README.md) 讲代码怎么组织，这份讲**这个 App 做什么**。
 
@@ -75,7 +75,7 @@
 
 `src/domain/` 下 8 个模块是**平台无关的纯逻辑**，不引用 React Native，可以直接用 Node 跑测试：做法配置、比例、研磨钳制、豆子命名与配色、豆子排序、5 星对比、日历统计、格式化。
 
-64 项测试都在这一层。视觉没法自动验证，所以凡是能抽成纯函数的规则都抽出来测了。
+大部分测试在这一层，其余是 service worker 的路由（`src/lib/sw.test.ts`）。视觉没法自动验证，所以凡是能抽成纯函数的规则都抽出来测了。
 
 ---
 
@@ -89,21 +89,32 @@
 
 ---
 
-## 下一步方向：转 PWA
+## 网页版 / PWA
 
-用户想脱离电脑独立使用，并且**要给朋友用**、不想花 $99、不上架。
+网页版不需要 Apple 账号、不签名、不审核、不上架，朋友发个链接就能加到主屏用。走这条路是因为 EAS Build 的 iOS 设备构建必须付费开发者账号（[文档](https://docs.expo.dev/build/internal-distribution/)）且每个朋友都要注册 UDID。iOS 的 7 天存储清除策略[不适用于已加到主屏的 PWA](https://webkit.org/blog/14403/updates-to-storage-policy/)。
 
-EAS Build 的 iOS 设备构建必须付费开发者账号（[文档](https://docs.expo.dev/build/internal-distribution/)），且每个朋友都要注册 UDID。PWA 不需要签名、审核、Apple 账号，朋友发个链接就能用。iOS 的 7 天存储清除策略[不适用于已加到主屏的 PWA](https://webkit.org/blog/14403/updates-to-storage-policy/)，数据可以安全留存。
+**数据层两端都是异步的**：`drizzle-orm/sqlite-proxy` 包 `openDatabaseAsync`。浏览器里没有同步 SQLite——expo-sqlite 的同步 API 在 web 上是主线程自旋等 worker，会在 618KB 的 WASM 编译完之前超时。`useLiveQuery` 只对同步驱动存在，所以换成了自写的 `useQuery`（`src/db/live.ts`）：写操作调 `notifyChanged()`，订阅者重查。迁移器同理是自己写的（`src/db/migrate.ts`），**记账格式跟 drizzle 完全一致**，已装设备不会重跑。
 
-**已实测**：web 构建能通过（含 618KB SQLite WASM，落在 OPFS），但运行时报 `Sync operation timeout`——数据层用的同步 API 在 web 上是主线程自旋等 worker，WASM 编译远超其超时。需要改成异步。
+**平台分叉只有三处**，都靠 `.web.ts` 后缀，Metro 按平台自己挑：
 
-**要改的**：`useLiveQuery` 换成自写的 `useQuery`（7 个界面 21 处，只是换 import）· db 驱动 sync→async · 照片改 OPFS · 备份改 Blob · 新增 manifest 和 service worker。领域层和界面组件不动。
+| 模块 | 原生 | 网页 |
+| --- | --- | --- |
+| `src/lib/photos` | 沙盒里的 `photos/` 目录 | IndexedDB 存 Blob |
+| `src/lib/backupFile` | 分享面板 | 主屏模式用分享面板，标签页里直接下载 |
+| `src/lib/alert` | 系统弹窗 | 自绘对话框（`AlertHost`，挂在根布局） |
 
-**备份**：用户有一台阿里云新加坡服务器。方案是 App 生成随机密钥、以恢复码形式让用户保管，派生出 `userId` / `writeToken` / `encKey`，**上传前客户端加密**——服务器只存密文，管理员也读不了朋友的记录。
+`Alert.alert` 在 react-native-web 里是个空函数，所以**所有确认框都必须走 `showAlert`**，直接用 RN 的 `Alert` 在网页上会静默无反应。照片在记录里仍然只存文件名，两端一致，手机导出的备份在网页版能对上照片引用。
 
-**用户要准备**：一个域名解析到那台服务器（`https://IP` 配自签证书 iOS 不认，装不了 PWA）。
+**外壳**在 `public/`，整个目录原样拷进 `dist/`：
 
-仓库里已为测试保留 `metro.config.js` 的 `assetExts.push('wasm')` 和 `react-native-web` / `react-dom` 两个依赖，对原生构建无影响。
+- `index.html` —— Expo 优先用它，没有才用自带模板。占位符只替换第一次出现的位置，别在上面的注释里再写一遍
+- `manifest.json` 和 `icons/`（从 `assets/icon.png` 和 adaptive-icon 前景图生成）
+- `sw.js` —— 运行时缓存，不用构建期清单：导航请求网络优先、回落到缓存的 index.html；`_expo/` 和 `assets/` 里带哈希的文件缓存优先。改它之前先看 `src/lib/sw.test.ts`
+- `setupPwa()` 注册 worker，并申请 `navigator.storage.persist()`
+
+**部署**：`npx expo export --platform web` 出 `dist/`，nginx 当静态目录，未知路径 `try_files` 回 `/index.html`。
+
+**还差服务器备份**：App 生成随机密钥、以恢复码形式让用户保管，派生出 `userId` / `writeToken` / `encKey`，**上传前客户端加密**——服务器只存密文，管理员也读不了朋友的记录。照片目前只在本机，加密备份要一起带上。
 
 ---
 
@@ -111,7 +122,7 @@ EAS Build 的 iOS 设备构建必须付费开发者账号（[文档](https://doc
 
 **npm 源**：全局 `~/.npmrc` 指向一个公司内网镜像源，在这台机器的常用网络下不可达。项目里的 `.npmrc` 覆盖成 npmjs.org，别删，也别改全局配置。
 
-**SDK 锁在 54**：用户设备上的 Expo Go 是 54.0.2，只能加载同版本项目。转 PWA 后此限制消失。
+**SDK 锁在 54**：用户设备上的 Expo Go 是 54.0.2，只能加载同版本项目。网页版没有这个限制。
 
 **`expo start` 无 TTY 会立刻退出**，需要用户在真终端里跑。用户手机开热点、电脑连热点，机器上还有一张公司 VPN 的虚拟网卡，Expo 可能挑错，启动时要锁定网卡：
 
@@ -119,6 +130,12 @@ EAS Build 的 iOS 设备构建必须付费开发者账号（[文档](https://doc
 $env:REACT_NATIVE_PACKAGER_HOSTNAME = "172.20.10.6"; npm start
 ```
 
-**没有 Mac，无 iOS 模拟器**，视觉问题只能靠用户截图。能自动验证的是 `tsc`、`npm test`、`expo export`。转 PWA 后可用浏览器自测。
+**没有 Mac，无 iOS 模拟器**，原生端的视觉问题只能靠用户截图。网页版可以自己在浏览器里验：
+
+```bash
+npx expo export --platform web
+```
+
+然后用任意静态服务器指向 `dist/`，未知路径回落到 `index.html`。注意 Claude 的内置浏览器面板**不允许注册 service worker**，那一步只能在真浏览器里验。
 
 **typedRoutes 已关闭**，导航走 `src/lib/routes.ts`，原因见 README。

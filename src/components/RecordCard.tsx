@@ -14,7 +14,7 @@ import type { Bean, Brand, CoffeeRecord } from '@/db/schema';
 import { beanInitial, beanName, beanSub, inkFor, swatchColor } from '@/domain/bean';
 import { paramText, ratioOf } from '@/domain/format';
 import { isMethod, isSpecialBase } from '@/domain/methods';
-import { photoUri } from '@/lib/photos';
+import { usePhotoUri } from '@/lib/usePhotoUri';
 import { color, METHOD_COLOR, METHOD_INK, METHOD_TINT, radius, shadowSm } from '@/theme';
 import { Num, StarText, Tap, Txt } from './ui';
 
@@ -45,7 +45,7 @@ export function RecordCard({
   const base = record.base && isSpecialBase(record.base) ? record.base : null;
   const ratio = method ? ratioOf({ ...record, base, method }) : null;
   const params = paramText(record);
-  const uri = photoUri(record.photo);
+  const uri = usePhotoUri(record.photo);
 
   return (
     <Pressable

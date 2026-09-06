@@ -11,10 +11,8 @@
  * home until something is added here.
  */
 import { useRouter } from 'expo-router';
-import * as DocumentPicker from 'expo-document-picker';
-import { File } from 'expo-file-system';
 import { useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Field } from '@/components/Field';
@@ -27,7 +25,10 @@ import { allDevices, allRecords } from '@/db/queries';
 import type { Device } from '@/db/schema';
 import { DEVICE_KINDS, GRIND_PRECISIONS, GRIND_UNITS, kindSpec } from '@/domain/device';
 import { grindText, midpointDefault } from '@/domain/grind';
+import { showAlert } from '@/lib/alert';
 import { exportBackup, importBackup, wipeAll } from '@/lib/backup';
+import { pickBackupFile } from '@/lib/backupFile';
+import { isStandalone } from '@/lib/pwa';
 import {
   allSettings,
   readSource,
@@ -57,6 +58,12 @@ const emptyDevice = (): DeviceDraft => ({
 });
 
 type Editing = { mode: 'new' } | { mode: 'edit'; device: Device } | null;
+
+/** The share sheet is the phone's route out; a browser tab downloads instead. */
+const EXPORT_HINT =
+  Platform.OS === 'web'
+    ? '全部数据存成 JSON，保存到这台设备'
+    : '全部数据存成 JSON，通过系统分享面板保存出去';
 
 export default function MeScreen() {
   const router = useRouter();
@@ -147,7 +154,7 @@ export default function MeScreen() {
     const used = (records ?? []).filter(
       (r) => r.gear === device.name || r.grinder === device.name,
     ).length;
-    Alert.alert(
+    showAlert(
       `删除「${device.name}」？`,
       used > 0
         ? `已有 ${used} 条记录用过它。记录会保留，里面的器具名也照样显示，只是以后选不到这台了。`
@@ -170,9 +177,9 @@ export default function MeScreen() {
     setBusy(true);
     try {
       const n = await exportBackup();
-      if (n == null) Alert.alert('这台设备不支持分享', '导出文件生成了，但系统没有可用的分享面板。');
+      if (n == null) showAlert('这台设备不支持分享', '导出文件生成了，但系统没有可用的分享面板。');
     } catch (e) {
-      Alert.alert('导出失败', e instanceof Error ? e.message : String(e));
+      showAlert('导出失败', e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
@@ -182,16 +189,11 @@ export default function MeScreen() {
     if (busy) return;
     setBusy(true);
     try {
-      const picked = await DocumentPicker.getDocumentAsync({
-        type: 'application/json',
-        copyToCacheDirectory: true,
-      });
-      const asset = picked.canceled ? null : picked.assets[0];
-      if (!asset) return;
+      const json = await pickBackupFile();
+      if (json == null) return;
 
-      const json = await new File(asset.uri).text();
       const r = await importBackup(json);
-      Alert.alert(
+      showAlert(
         '导入完成',
         [
           `新增 ${r.inserted.records} 条记录、${r.inserted.beans} 支豆子、${r.inserted.devices} 台设备`,
@@ -202,20 +204,20 @@ export default function MeScreen() {
           .join('\n'),
       );
     } catch (e) {
-      Alert.alert('导入失败', e instanceof Error ? e.message : String(e));
+      showAlert('导入失败', e instanceof Error ? e.message : String(e));
     } finally {
       setBusy(false);
     }
   };
 
   const confirmWipe = () => {
-    Alert.alert('清空所有数据？', '记录、豆子、设备、照片会全部删掉，找不回来。建议先导出一份备份。', [
+    showAlert('清空所有数据？', '记录、豆子、设备、照片会全部删掉，找不回来。建议先导出一份备份。', [
       { text: '取消', style: 'cancel' },
       {
         text: '清空',
         style: 'destructive',
         onPress: () => {
-          Alert.alert('真的要清空吗？', '这一步没有撤销。', [
+          showAlert('真的要清空吗？', '这一步没有撤销。', [
             { text: '取消', style: 'cancel' },
             {
               text: '确认清空',
@@ -236,6 +238,22 @@ export default function MeScreen() {
         <ScreenTitle>我的</ScreenTitle>
 
         <View style={styles.inner}>
+          {/*
+            Only ever seen in a browser tab. Adding to the home screen is what
+            makes iOS treat the storage as durable rather than evictable, so
+            this is a data-safety notice as much as a convenience one.
+          */}
+          {isStandalone() ? null : (
+            <View style={styles.installCard}>
+              <Txt size={15} w="semi" c={color.accent700}>
+                把它加到主屏
+              </Txt>
+              <Txt size={12.5} c={color.neutral700} style={styles.installBody}>
+                Safari 底部「分享」→「添加到主屏幕」。加了之后才是整屏显示，数据也不会被浏览器当成临时缓存清掉。
+              </Txt>
+            </View>
+          )}
+
           <Tap onPress={() => router.push(routes.stats)} style={styles.statsRow}>
             <View style={styles.dataText}>
               <Txt size={15} w="semi">
@@ -354,7 +372,7 @@ export default function MeScreen() {
                     导出备份
                   </Txt>
                   <Txt size={12} c={color.neutral600}>
-                    全部数据存成 JSON，通过系统分享面板保存出去
+                    {EXPORT_HINT}
                   </Txt>
                 </View>
                 <Num size={15} c={color.neutral500}>
@@ -521,6 +539,13 @@ const styles = StyleSheet.create({
   deviceRow: { flexDirection: 'row', alignItems: 'center' },
   deviceMain: { flex: 1, gap: 2, paddingHorizontal: 16, paddingVertical: 12, minHeight: 56 },
   deviceDelete: { paddingHorizontal: 16, minHeight: 44, justifyContent: 'center' },
+  installCard: {
+    gap: 5,
+    padding: 15,
+    borderRadius: radius.card,
+    backgroundColor: color.accent100,
+  },
+  installBody: { lineHeight: 19 },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
