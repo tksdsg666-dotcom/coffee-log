@@ -40,8 +40,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="咖啡记录" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <link rel="icon" href="/favicon.png" />
+    <!--
+      Both carry a version in the filename. iOS caches a home-screen icon by
+      URL and will not re-fetch the same path even after the shortcut is
+      deleted and re-added, so changing the artwork means changing the name.
+      Bump alongside VERSION in scripts/make-icons.py.
+    -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon-v2.png" />
+    <link rel="icon" href="/favicon-v2.png" />
 
     <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
     <style id="expo-reset">

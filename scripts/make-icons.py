@@ -31,6 +31,14 @@ SOURCE = ROOT / "assets" / "icon-source.png"
 SUBJECT = (430, 232, 1018, 925)
 # How much of the tile the glass fills on the un-masked icons.
 FILL = 0.70
+# The favicon renders at 16px in a tab. At FILL the glass is a small shape in a
+# field of cream and reads as nothing at all, so it gets its own tight crop —
+# the amber/brown/white bands are the only thing legible at that size.
+FAVICON_FILL = 1.0
+# Bumped whenever the artwork changes. iOS caches a home-screen icon by URL and
+# will not re-fetch the same path, so the file has to be renamed to get an
+# already-installed shortcut to update. Keep in step with public/index.html.
+VERSION = 2
 # Maskable icons are cropped to a circle of this diameter, as a fraction.
 SAFE = 0.80
 
@@ -84,8 +92,12 @@ def main():
     icons = ROOT / "public" / "icons"
     write(plain, icons / "icon-192.png", 192)
     write(plain, icons / "icon-512.png", 512)
-    write(plain, icons / "apple-touch-icon.png", 180)
-    write(plain, ROOT / "public" / "favicon.png", 48)
+    write(plain, icons / f"apple-touch-icon-v{VERSION}.png", 180)
+
+    # 96 rather than 48: browsers downscale to 16/32 themselves and do a better
+    # job of it than a nearest-neighbour step from an already small file.
+    tight = square_crop(source, SUBJECT, FAVICON_FILL)
+    write(tight, ROOT / "public" / f"favicon-v{VERSION}.png", 96)
 
     for size in (192, 512):
         path = icons / f"maskable-{size}.png"
@@ -94,7 +106,7 @@ def main():
 
     # Native build assets.
     write(plain, ROOT / "assets" / "icon.png", 1024)
-    write(plain, ROOT / "assets" / "favicon.png", 48)
+    write(tight, ROOT / "assets" / "favicon.png", 96)
     write(plain, ROOT / "assets" / "splash-icon.png", 1024)
     maskable(source, SUBJECT, 512).save(
         ROOT / "assets" / "android-icon-foreground.png", optimize=True

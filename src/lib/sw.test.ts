@@ -13,11 +13,14 @@
  */
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { test } from 'node:test';
 import { runInNewContext } from 'node:vm';
 
 const ORIGIN = 'https://coffee.thinker.win';
-const SOURCE = readFileSync(new URL('../../public/sw.js', import.meta.url), 'utf8');
+// A path rather than a file:// URL: `lib` includes DOM, so `URL` here is the
+// DOM one and `readFileSync` will not take it.
+const SOURCE = readFileSync(join(import.meta.dirname, '..', '..', 'public', 'sw.js'), 'utf8');
 
 type FakeResponse = { ok: boolean; body: string; clone: () => FakeResponse };
 
