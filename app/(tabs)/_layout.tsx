@@ -4,20 +4,35 @@
  */
 import { Tabs } from 'expo-router';
 import { Coffee, List, User } from 'lucide-react-native';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, font, weight } from '@/theme';
 
 const STROKE = 2.75;
 
+/**
+ * The bar's own height, above the home indicator.
+ *
+ * It has to be added to the inset by hand. `getTabBarHeight` treats a numeric
+ * `height` in `tabBarStyle` as the **total**, while the bar separately applies
+ * `paddingBottom: insets.bottom` — so a flat 62 on an iPhone leaves 22pt for an
+ * icon and a label, and the label silently disappears. A per-platform constant
+ * cannot express this either: the same iPhone reports `ios` in Expo Go and
+ * `web` in the PWA, with the same 34pt indicator underneath both.
+ */
+const BAR_HEIGHT = 58;
+
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: color.accent,
         tabBarInactiveTintColor: color.neutral500,
-        tabBarStyle: styles.bar,
+        tabBarStyle: [styles.bar, { height: BAR_HEIGHT + insets.bottom }],
         tabBarLabelStyle: styles.label,
         sceneStyle: { backgroundColor: color.bg },
       }}
@@ -52,8 +67,6 @@ const styles = StyleSheet.create({
     backgroundColor: color.glass,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: color.hairline,
-    // The default 49pt bar crowds the 2.75-weight icons.
-    height: Platform.OS === 'ios' ? 84 : 62,
     paddingTop: 6,
   },
   label: {
