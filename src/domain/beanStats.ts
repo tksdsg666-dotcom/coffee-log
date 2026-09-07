@@ -130,11 +130,14 @@ export const buildComparison = (records: CoffeeRecord[]): Comparison | null => {
   );
 
   // Gear rows go on top: which grinder produced a number is the context for
-  // reading the number, so it has to be visible above it.
-  if (method === '滴滤' && cols.some((r) => r.grinder)) {
+  // reading the number, so it has to be visible above it. Driven by whether the
+  // records actually carry the field rather than by the method — 研磨 is asked
+  // for on every method now, and a 研磨 row whose grinder is invisible cannot be
+  // read (worse, the mixed-grinder rule above would silently stop flagging it).
+  if (cols.some((r) => r.grinder)) {
     rows.unshift(mk('磨豆机', cols.map((r) => r.grinder ?? '—')));
   }
-  if (method === '滴滤' && cols.some((r) => r.gear)) {
+  if (cols.some((r) => r.gear)) {
     rows.unshift(mk('器具', cols.map((r) => r.gear ?? '—')));
   }
 

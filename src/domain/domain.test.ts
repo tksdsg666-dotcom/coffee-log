@@ -26,6 +26,8 @@ import {
   isSpecialBase,
   METHODS,
   SPECIAL_BASES,
+  usesGear,
+  usesGrind,
   type Method,
   type SpecialBase,
 } from './methods.ts';
@@ -287,11 +289,25 @@ test('其他 carries no parameters at all', () => {
   assert.equal(fieldsFor('其他', null).length, 0);
 });
 
-test('grind is only asked for on 滴滤', () => {
+test('every method that brews beans asks for 研磨，其他 does not', () => {
   for (const { method, base } of everySlot()) {
     const hasGrind = fieldsFor(method, base).some((f) => f.k === 'grind');
-    assert.equal(hasGrind, method === '滴滤', `${method} grind field presence is wrong`);
+    assert.equal(hasGrind, method !== '其他', `${method} grind field presence is wrong`);
   }
+});
+
+test('研磨 is offered on a self-made cup and never on a shop one', () => {
+  for (const { method, base } of everySlot()) {
+    assert.equal(usesGrind(method, base, 'self'), method !== '其他', `${method} self`);
+    assert.equal(usesGrind(method, base, 'br_x'), false, `${method} shop`);
+  }
+});
+
+test('冲煮器具 stays a 滴滤 notion even though 研磨 spread', () => {
+  for (const { method } of everySlot()) {
+    assert.equal(usesGear(method, 'self'), method === '滴滤', `${method} gear`);
+  }
+  assert.equal(usesGear('滴滤', 'br_x'), false);
 });
 
 test('pressure rides along with the espresso family only', () => {
@@ -309,15 +325,15 @@ test('pressure rides along with the espresso family only', () => {
 test('特调 takes its base extraction fields plus the other liquid', () => {
   assert.deepEqual(
     fieldsFor('特调', '浓缩').map((f) => f.k),
-    ['dose', 'yieldG', 'sec', 'tempC', 'pressure', 'milk'],
+    ['dose', 'yieldG', 'grind', 'sec', 'tempC', 'pressure', 'milk'],
   );
   assert.deepEqual(
     fieldsFor('特调', '冷萃').map((f) => f.k),
-    ['dose', 'water', 'hours', 'milk'],
+    ['dose', 'water', 'grind', 'hours', 'milk'],
   );
   assert.deepEqual(
     fieldsFor('特调', '滴滤').map((f) => f.k),
-    ['dose', 'water', 'tempC', 'sec', 'milk'],
+    ['dose', 'water', 'grind', 'tempC', 'sec', 'milk'],
   );
 });
 

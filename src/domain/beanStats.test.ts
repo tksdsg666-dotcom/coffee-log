@@ -177,16 +177,24 @@ test('gear rows sit above the parameters they explain', () => {
   );
 });
 
-test('non-滴滤 comparisons carry no gear rows', () => {
+test('a 奶咖 comparison has no 器具 row, and no 磨豆机 row until one is recorded', () => {
   const milk = (over: Partial<CoffeeRecord>) =>
     rec({ rating: 5, method: '奶咖', dose: 18, yieldG: 36, milk: 180, ...over });
   const c = buildComparison([milk({ day: 26 }), milk({ day: 24, milk: 200 })]);
   assert.ok(c);
   assert.deepEqual(
     c.rows.map((r) => r.label),
-    ['浓缩粉量', '浓缩液重', '奶量（ml）', '水温（°C）', '压强（bar）', '比例'],
+    ['浓缩粉量', '浓缩液重', '奶量（ml）', '研磨', '水温（°C）', '压强（bar）', '比例'],
   );
   assert.equal(c.rows.find((r) => r.label === '奶量（ml）')?.diff, true);
+});
+
+test('the 磨豆机 row follows the grind, not the method', () => {
+  const shot = (over: Partial<CoffeeRecord>) =>
+    rec({ rating: 5, method: '奶咖', dose: 18, yieldG: 36, milk: 180, grinder: 'C40', ...over });
+  const c = buildComparison([shot({ day: 26 }), shot({ day: 24 })]);
+  assert.ok(c);
+  assert.equal(c.rows[0]?.label, '磨豆机');
 });
 
 test('an unfilled parameter shows as an em dash and counts as a difference', () => {

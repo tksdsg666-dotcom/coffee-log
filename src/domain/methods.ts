@@ -83,13 +83,14 @@ const OTHER_LIQUID: ParamField = {
 
 /** Extraction parameters for each 特调 base, before the other liquid. */
 const BASE_FIELDS: Record<SpecialBase, readonly ParamField[]> = {
-  浓缩: [ESPRESSO_DOSE, YIELD, SHOT_TIME, TEMP, PRESSURE],
+  浓缩: [ESPRESSO_DOSE, YIELD, GRIND, SHOT_TIME, TEMP, PRESSURE],
   冷萃: [
     { k: 'dose', label: '粉量', unit: 'g', step: 5, min: 10, max: 300 },
     { k: 'water', label: '水量', unit: 'g', step: 50, min: 100, max: 3000 },
+    GRIND,
     { k: 'hours', label: '浸泡', unit: '小时', step: 1, min: 1, max: 72 },
   ],
-  滴滤: [DOSE, DRIP_WATER, TEMP, DRIP_TIME],
+  滴滤: [DOSE, DRIP_WATER, GRIND, TEMP, DRIP_TIME],
 };
 
 const FIXED_FIELDS: Record<Exclude<Method, '特调'>, readonly ParamField[]> = {
@@ -98,6 +99,7 @@ const FIXED_FIELDS: Record<Exclude<Method, '特调'>, readonly ParamField[]> = {
     { ...DOSE, max: 40 },
     YIELD,
     { k: 'water', label: '加水', unit: 'ml', step: 10, min: 0, max: 600 },
+    GRIND,
     SHOT_TIME,
     TEMP,
     PRESSURE,
@@ -106,6 +108,7 @@ const FIXED_FIELDS: Record<Exclude<Method, '特调'>, readonly ParamField[]> = {
     ESPRESSO_DOSE,
     YIELD,
     { k: 'milk', label: '奶量', unit: 'ml', step: 10, min: 30, max: 800 },
+    GRIND,
     TEMP,
     PRESSURE,
   ],
@@ -144,12 +147,25 @@ export const defaultsFor = (
 /** 其他 is the only method that carries a name the user typed. */
 export const usesCustomName = (method: Method) => method === '其他';
 
-/** 研磨 is only asked for on a self-made pour-over. */
-export const usesGrindCard = (method: Method, brandId: string) =>
-  method === '滴滤' && brandId === 'self';
+/**
+ * 研磨 is asked for on any self-made cup whose method grinds beans — which is
+ * all of them except 其他. A 门店 cup never gets it: the shop's grinder setting
+ * is not something you can know.
+ *
+ * This is what gates the grinder picker as well as the card, because the two
+ * cannot be separated: a grind number without the `gunit` snapshot the grinder
+ * supplies is a number on an unknown scale.
+ */
+export const usesGrind = (method: Method, base: SpecialBase | null, brandId: string) =>
+  brandId === 'self' && fieldsFor(method, base).some((f) => f.k === 'grind');
 
-/** Same condition gear/grinder are stored under. */
-export const usesGear = usesGrindCard;
+/**
+ * 冲煮器具 stays a pour-over notion. An espresso machine or a cold-brew jug is
+ * not what the device list means by 冲煮器具, and widening it would start
+ * writing gear names onto cups that have none.
+ */
+export const usesGear = (method: Method, brandId: string) =>
+  method === '滴滤' && brandId === 'self';
 
 /** Empty parameter set — 门店 records start here and stay here. */
 export const blankParams = (

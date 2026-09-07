@@ -53,7 +53,7 @@ import {
   type SpecialBase,
   usesCustomName,
   usesGear,
-  usesGrindCard,
+  usesGrind,
 } from '@/domain/methods';
 import { showAlert } from '@/lib/alert';
 import { color, METHOD_COLOR, MIN_TAP, radius, shadowSm } from '@/theme';
@@ -257,7 +257,12 @@ export default function RecordForm() {
 
   // ── parameter editing ──────────────────────────────────────────────────────
 
-  const showGrindCard = usesGrindCard(method, isSelf ? 'self' : 'shop') && spec != null;
+  // The grinder picker and the grind card are gated separately: the picker has
+  // to appear before any grinder exists, or there is no way to add the first
+  // one from here. The card needs a grinder, because the scale comes from it.
+  const showGrinder = usesGrind(method, base, isSelf ? 'self' : 'shop');
+  const showGear = usesGear(method, isSelf ? 'self' : 'shop');
+  const showGrindCard = showGrinder && spec != null;
 
   /** Fields shown as rows — grind is pulled out into its own card when shown. */
   const rowFields = useMemo(
@@ -379,7 +384,6 @@ export default function RecordForm() {
 
     setSaving(true);
     try {
-      const withGear = usesGear(method, isSelf ? 'self' : 'shop');
       // Start every parameter column at null so an edit that changes the method
       // does not leave the previous method's values stranded on the row.
       const blank: Record<ParamKey, number | null> = {
@@ -414,9 +418,11 @@ export default function RecordForm() {
         rating,
         note: note.trim(),
         photo,
-        gear: withGear ? gear : null,
-        grinder: withGear ? grinder : null,
-        gunit: withGear && spec ? spec.unit : null,
+        gear: showGear ? gear : null,
+        // The grinder and its unit travel with the grind value, not with the
+        // gear: a grind number whose scale is unknown cannot be read back.
+        grinder: showGrinder ? grinder : null,
+        gunit: showGrinder && spec ? spec.unit : null,
         ...blank,
       };
 
@@ -638,23 +644,27 @@ export default function RecordForm() {
             </Tap>
           </Block>
 
-          {/* 5 — 器具 / 磨豆机 (滴滤 + 自制 only) */}
-          {usesGear(method, isSelf ? 'self' : 'shop') ? (
-            <Block title="器具">
-              <DevicePicker
-                label="冲煮器具"
-                options={brewDevices.map((d) => d.name)}
-                value={gear}
-                onPick={setGear}
-                emptyHint="还没有冲煮器具，去「我的 → 我的设备」添加"
-              />
-              <DevicePicker
-                label="磨豆机"
-                options={grinderDevices.map((d) => d.name)}
-                value={grinder}
-                onPick={pickGrinder}
-                emptyHint="还没有磨豆机，去「我的 → 我的设备」添加"
-              />
+          {/* 5 — 冲煮器具只属于滴滤；磨豆机跟着研磨走，自制的做法都有 */}
+          {showGear || showGrinder ? (
+            <Block title={showGear ? '器具' : '磨豆机'}>
+              {showGear ? (
+                <DevicePicker
+                  label="冲煮器具"
+                  options={brewDevices.map((d) => d.name)}
+                  value={gear}
+                  onPick={setGear}
+                  emptyHint="还没有冲煮器具，去「我的 → 我的设备」添加"
+                />
+              ) : null}
+              {showGrinder ? (
+                <DevicePicker
+                  label="磨豆机"
+                  options={grinderDevices.map((d) => d.name)}
+                  value={grinder}
+                  onPick={pickGrinder}
+                  emptyHint="还没有磨豆机，去「我的 → 我的设备」添加"
+                />
+              ) : null}
             </Block>
           ) : null}
 

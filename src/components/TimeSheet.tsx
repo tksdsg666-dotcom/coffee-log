@@ -18,6 +18,16 @@ const ITEM_H = 44;
 const VISIBLE = 5;
 const PAD = ((VISIBLE - 1) / 2) * ITEM_H;
 const DAYS_BACK = 60;
+/**
+ * How long the wheel has to stop moving before its row counts as chosen.
+ *
+ * The obvious hook is `onMomentumScrollEnd`, and that is what this used to use
+ * — but react-native-web never fires it (the DOM has no such event), so on the
+ * web the wheel scrolled and nothing was ever selected. Watching `onScroll` go
+ * quiet works on both platforms, and it is also what makes the row snap: web
+ * ignores `snapToInterval` too.
+ */
+const SETTLE_MS = 140;
 
 export type TimeValue = { dayOffset: number; hour: number; minute: number };
 
@@ -85,7 +95,23 @@ export function TimeSheet({
     return next;
   };
 
-  const set = (patch: Partial<TimeValue>) => onChange(clampToNow({ ...value, ...patch }));
+  /**
+   * The last value handed out, which is not always the last one rendered.
+   *
+   * Each column commits from a timer, and two columns flicked in quick
+   * succession can both fire before React has re-rendered with the first
+   * result. Building the patch on `value` there would make the second pick
+   * overwrite the first with a stale base — the minute lands and the hour
+   * silently reverts. Re-synced on every render, so the parent stays in charge.
+   */
+  const pending = useRef(value);
+  pending.current = value;
+
+  const set = (patch: Partial<TimeValue>) => {
+    const next = clampToNow({ ...pending.current, ...patch });
+    pending.current = next;
+    onChange(next);
+  };
 
   return (
     <Sheet
@@ -140,6 +166,9 @@ function Column({
   numeric?: boolean;
 }) {
   const ref = useRef<ScrollView>(null);
+  const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const offset = useRef(0);
+  const placed = useRef(false);
   const index = Math.max(
     0,
     items.findIndex((i) => i.v === value),
@@ -147,9 +176,34 @@ function Column({
 
   // Follow programmatic changes (「现在」, and the future-time clamp) without
   // fighting an in-progress drag: scrollTo during momentum is a no-op on iOS.
+  // The first placement jumps rather than animates — the sheet is still opening
+  // and an animation from row zero reads as the wheel spinning on its own.
   useEffect(() => {
-    ref.current?.scrollTo({ y: index * ITEM_H, animated: true });
+    ref.current?.scrollTo({ y: index * ITEM_H, animated: placed.current });
+    placed.current = true;
   }, [index]);
+
+  useEffect(
+    () => () => {
+      if (settle.current) clearTimeout(settle.current);
+    },
+    [],
+  );
+
+  /** Whatever row the wheel came to rest on wins, and it snaps flush to it. */
+  const commit = () => {
+    const i = Math.max(0, Math.min(items.length - 1, Math.round(offset.current / ITEM_H)));
+    const picked = items[i];
+    if (!picked) return;
+    // Instant, not animated: this is a sub-row correction nobody sees, and a
+    // smooth scroll issued right as momentum ends is the kind of thing iOS
+    // quietly drops. Native never gets here — `snapToInterval` already landed
+    // the wheel flush, so the offset is already the target.
+    if (Math.abs(offset.current - i * ITEM_H) > 1) {
+      ref.current?.scrollTo({ y: i * ITEM_H, animated: false });
+    }
+    if (picked.v !== value) onPick(picked.v);
+  };
 
   return (
     <ScrollView
@@ -158,11 +212,12 @@ function Column({
       showsVerticalScrollIndicator={false}
       snapToInterval={ITEM_H}
       decelerationRate="fast"
+      scrollEventThrottle={16}
       contentContainerStyle={{ paddingVertical: PAD }}
-      onMomentumScrollEnd={(e) => {
-        const i = Math.round(e.nativeEvent.contentOffset.y / ITEM_H);
-        const picked = items[Math.max(0, Math.min(items.length - 1, i))];
-        if (picked && picked.v !== value) onPick(picked.v);
+      onScroll={(e) => {
+        offset.current = e.nativeEvent.contentOffset.y;
+        if (settle.current) clearTimeout(settle.current);
+        settle.current = setTimeout(commit, SETTLE_MS);
       }}
     >
       {items.map((item) => {
